@@ -1,9 +1,7 @@
 // client/src/utils/itemDisplay.js
+// Only s-shirt.png exists in itemIcons/ so far - used as the fallback for
+// every item type until per-type icons are added.
 import shirtIcon from '../assets/itemIcons/s-shirt.png';
-
-const TYPE_ICONS = {
-  shirt: shirtIcon,
-};
 
 export function getItemDisplayName(item) {
   if (item.nickname?.trim()) return item.nickname;
@@ -12,6 +10,6 @@ export function getItemDisplayName(item) {
   return parts.join(' ');
 }
 
-export function getItemIcon(item) {
-  return TYPE_ICONS[item.type] || null;
+export function getItemIcon() {
+  return shirtIcon;
 }

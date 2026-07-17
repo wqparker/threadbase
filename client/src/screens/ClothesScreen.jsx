@@ -16,21 +16,12 @@ function ClothesScreen({ closet, onBack }) {
       {error && <p>Error: {error}</p>}
 
       <div className="item-grid">
-        {items.map((item) => {
-          const icon = getItemIcon(item);
-          return (
-            <div key={item._id} className="item-card">
-              {item.photoUrl ? (
-                <img src={item.photoUrl} alt={getItemDisplayName(item)} />
-              ) : icon ? (
-                <img src={icon} alt={item.type} />
-              ) : (
-                <div className="item-icon-placeholder">{item.type}</div>
-              )}
-              <p>{getItemDisplayName(item)}</p>
-            </div>
-          );
-        })}
+        {items.map((item) => (
+          <div key={item._id} className="item-card">
+            <img src={item.photoUrl || getItemIcon()} alt={getItemDisplayName(item)} />
+            <p>{getItemDisplayName(item)}</p>
+          </div>
+        ))}
       </div>
     </section>
   );
