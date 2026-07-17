@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useClosets } from '../hooks/useClosets';
 
-function ClosetsScreen() {
+function ClosetsScreen({ onSelectCloset }) {
   const { closets, loading, error, addCloset } = useClosets();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -41,8 +41,10 @@ function ClosetsScreen() {
       <ul>
         {closets.map((closet) => (
           <li key={closet._id}>
-            <strong>{closet.name}</strong>
-            {closet.description && <span> — {closet.description}</span>}
+            <button type="button" onClick={() => onSelectCloset(closet)}>
+              <strong>{closet.name}</strong>
+              {closet.description && <span> — {closet.description}</span>}
+            </button>
           </li>
         ))}
       </ul>
