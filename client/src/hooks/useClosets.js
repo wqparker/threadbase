@@ -1,6 +1,6 @@
 // client/src/hooks/useClosets.js
 import { useEffect, useState, useCallback } from 'react';
-import { getClosets, createCloset } from '../services/closetService';
+import { getClosets, createCloset, deleteCloset } from '../services/closetService';
 
 export function useClosets() {
   const [closets, setClosets] = useState([]);
@@ -30,5 +30,10 @@ export function useClosets() {
     return newCloset;
   }
 
-  return { closets, loading, error, addCloset };
+  async function removeCloset(id) {
+    await deleteCloset(id);
+    setClosets((prev) => prev.filter((closet) => closet._id !== id));
+  }
+
+  return { closets, loading, error, addCloset, removeCloset };
 }

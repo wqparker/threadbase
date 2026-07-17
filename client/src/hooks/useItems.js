@@ -1,6 +1,6 @@
 // client/src/hooks/useItems.js
 import { useEffect, useState } from 'react';
-import { getItems } from '../services/itemService';
+import { getItems, createItem, deleteItem } from '../services/itemService';
 
 export function useItems(closetId) {
   const [items, setItems] = useState([]);
@@ -25,5 +25,16 @@ export function useItems(closetId) {
     };
   }, [closetId]);
 
-  return { items, loading, error };
+  async function addItem(data) {
+    const newItem = await createItem(data);
+    setItems((prev) => [...prev, newItem]);
+    return newItem;
+  }
+
+  async function removeItem(id) {
+    await deleteItem(id);
+    setItems((prev) => prev.filter((item) => item._id !== id));
+  }
+
+  return { items, loading, error, addItem, removeItem };
 }
