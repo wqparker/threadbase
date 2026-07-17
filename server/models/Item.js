@@ -72,4 +72,34 @@ itemSchema.post('findOneAndDelete', async function (doc) {
   await mongoose.model('LaundryLoad').updateMany({ items: doc._id }, { $pull: { items: doc._id } });
 });
 
+// Keep Closet.items in sync when an item moves closets via
+// findByIdAndUpdate/findOneAndUpdate (not covered: doc.save()). The doc
+// findOneAndUpdate's post-hook receives is the pre-update document unless
+// the caller passes { new: true }, so the new closetId has to come from
+// the update payload itself rather than from that doc.
+itemSchema.pre('findOneAndUpdate', async function () {
+  this._previousDoc = await this.model.findOne(this.getFilter());
+});
+
+itemSchema.post('findOneAndUpdate', async function () {
+  const previous = this._previousDoc;
+  if (!previous) return;
+
+  const update = this.getUpdate() || {};
+  const setOps = update.$set || update;
+  if (!Object.prototype.hasOwnProperty.call(setOps, 'closetId')) return;
+
+  const oldClosetId = previous.closetId?.toString();
+  const newClosetId = setOps.closetId?.toString();
+  if (oldClosetId === newClosetId) return;
+
+  const Closet = mongoose.model('Closet');
+  if (oldClosetId) {
+    await Closet.updateOne({ _id: oldClosetId }, { $pull: { items: previous._id } });
+  }
+  if (newClosetId) {
+    await Closet.updateOne({ _id: newClosetId }, { $addToSet: { items: previous._id } });
+  }
+});
+
 module.exports = mongoose.model('Item', itemSchema);

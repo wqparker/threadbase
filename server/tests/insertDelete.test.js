@@ -52,16 +52,31 @@ describe('inserting objects', () => {
 });
 
 describe('deleting objects', () => {
+  let closet;
+  let item;
+  let laundryLoad;
+
+  afterEach(async () => {
+    // Runs even if an assertion above threw, so a failing test can't
+    // leave orphaned documents behind.
+    await Promise.all([
+      closet && Closet.findByIdAndDelete(closet._id),
+      item && Item.findByIdAndDelete(item._id),
+      laundryLoad && LaundryLoad.findByIdAndDelete(laundryLoad._id),
+    ]);
+    closet = item = laundryLoad = undefined;
+  });
+
   test('deleting an item removes it from its closet and any laundry load', async () => {
-    const closet = await Closet.create({ name: 'Jest Test Closet' });
-    const item = await Item.create({
+    closet = await Closet.create({ name: 'Jest Test Closet' });
+    item = await Item.create({
       type: 'other',
       closetId: closet._id,
       colourCategory: 'mixed',
     });
     closet.items.push(item._id);
     await closet.save();
-    const laundryLoad = await LaundryLoad.create({ items: [item._id] });
+    laundryLoad = await LaundryLoad.create({ items: [item._id] });
 
     await Item.findByIdAndDelete(item._id);
 
@@ -70,15 +85,12 @@ describe('deleting objects', () => {
     expect(updatedCloset.items).not.toContainEqual(item._id);
     expect(updatedLoad.items).not.toContainEqual(item._id);
 
-    await Promise.all([
-      Closet.findByIdAndDelete(closet._id),
-      LaundryLoad.findByIdAndDelete(laundryLoad._id),
-    ]);
+    item = undefined; // already deleted above, don't double-delete in afterEach
   });
 
   test('deleting a closet clears closetId on items that referenced it', async () => {
-    const closet = await Closet.create({ name: 'Jest Test Closet' });
-    const item = await Item.create({
+    closet = await Closet.create({ name: 'Jest Test Closet' });
+    item = await Item.create({
       type: 'other',
       closetId: closet._id,
       colourCategory: 'mixed',
@@ -91,6 +103,51 @@ describe('deleting objects', () => {
     const updatedItem = await Item.findById(item._id);
     expect(updatedItem.closetId).toBeUndefined();
 
-    await Item.findByIdAndDelete(item._id);
+    closet = undefined; // already deleted above, don't double-delete in afterEach
+  });
+});
+
+describe('altering objects', () => {
+  let closetA;
+  let closetB;
+  let item;
+
+  afterEach(async () => {
+    await Promise.all([
+      closetA && Closet.findByIdAndDelete(closetA._id),
+      closetB && Closet.findByIdAndDelete(closetB._id),
+      item && Item.findByIdAndDelete(item._id),
+    ]);
+    closetA = closetB = item = undefined;
+  });
+
+  test('moving an item to a different closet updates both closets’ items arrays', async () => {
+    closetA = await Closet.create({ name: 'Jest Closet A' });
+    closetB = await Closet.create({ name: 'Jest Closet B' });
+    item = await Item.create({ type: 'other', closetId: closetA._id, colourCategory: 'mixed' });
+    closetA.items.push(item._id);
+    await closetA.save();
+
+    await Item.findByIdAndUpdate(item._id, { closetId: closetB._id });
+
+    const updatedA = await Closet.findById(closetA._id);
+    const updatedB = await Closet.findById(closetB._id);
+    expect(updatedA.items).not.toContainEqual(item._id);
+    expect(updatedB.items).toContainEqual(item._id);
+  });
+
+  test('changing an item’s wearStatus to dirty updates the field', async () => {
+    closetA = await Closet.create({ name: 'Jest Closet A' });
+    item = await Item.create({
+      type: 'other',
+      closetId: closetA._id,
+      colourCategory: 'mixed',
+      wearStatus: 'light',
+    });
+
+    await Item.findByIdAndUpdate(item._id, { wearStatus: 'dirty' });
+
+    const updatedItem = await Item.findById(item._id);
+    expect(updatedItem.wearStatus).toBe('dirty');
   });
 });
