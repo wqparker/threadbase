@@ -18,10 +18,11 @@ const itemSchema = new mongoose.Schema({
   brand: {
     type: String,
   },
+  // Not required: an item becomes unassigned (closetId cleared) if its
+  // closet is deleted, rather than being deleted along with it.
   closetId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Closet',
-    required: true,
   },
   // What the laundry-grouping algorithm actually keys off — not exact colour
   colourCategory: {
@@ -58,6 +59,17 @@ const itemSchema = new mongoose.Schema({
     enum: WEAR_STATUSES,
     default: 'clean',
   },
+});
+
+// Cascade cleanup on deletion via findByIdAndDelete/findOneAndDelete: an
+// item's own reference lives on Closet/LaundryLoad as array entries, so
+// deleting the item has to pull it out of both. Requires Closet and
+// LaundryLoad to already be registered with mongoose elsewhere in the
+// process (not covered: deleteOne()/deleteMany()).
+itemSchema.post('findOneAndDelete', async function (doc) {
+  if (!doc) return;
+  await mongoose.model('Closet').updateMany({ items: doc._id }, { $pull: { items: doc._id } });
+  await mongoose.model('LaundryLoad').updateMany({ items: doc._id }, { $pull: { items: doc._id } });
 });
 
 module.exports = mongoose.model('Item', itemSchema);
