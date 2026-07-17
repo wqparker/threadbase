@@ -74,8 +74,6 @@ describe('deleting objects', () => {
       closetId: closet._id,
       colourCategory: 'mixed',
     });
-    closet.items.push(item._id);
-    await closet.save();
     laundryLoad = await LaundryLoad.create({ items: [item._id] });
 
     await Item.findByIdAndDelete(item._id);
@@ -95,8 +93,6 @@ describe('deleting objects', () => {
       closetId: closet._id,
       colourCategory: 'mixed',
     });
-    closet.items.push(item._id);
-    await closet.save();
 
     await Closet.findByIdAndDelete(closet._id);
 
@@ -125,8 +121,6 @@ describe('altering objects', () => {
     closetA = await Closet.create({ name: 'Jest Closet A' });
     closetB = await Closet.create({ name: 'Jest Closet B' });
     item = await Item.create({ type: 'other', closetId: closetA._id, colourCategory: 'mixed' });
-    closetA.items.push(item._id);
-    await closetA.save();
 
     await Item.findByIdAndUpdate(item._id, { closetId: closetB._id });
 
