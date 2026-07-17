@@ -49,6 +49,13 @@ describe('inserting objects', () => {
     expect(item.careInstructions.source).toBe('manual');
     expect(laundryLoad.items).toContainEqual(item._id);
   });
+
+  test('creating an item without a closetId does not touch any closet', async () => {
+    item = await Item.create({ type: 'other', colourCategory: 'mixed' });
+
+    expect(item._id).toBeDefined();
+    expect(item.closetId).toBeUndefined();
+  });
 });
 
 describe('deleting objects', () => {
@@ -143,5 +150,27 @@ describe('altering objects', () => {
 
     const updatedItem = await Item.findById(item._id);
     expect(updatedItem.wearStatus).toBe('dirty');
+  });
+
+  test('setting an item’s closetId to its current value is a no-op', async () => {
+    closetA = await Closet.create({ name: 'Jest Closet A' });
+    item = await Item.create({ type: 'other', closetId: closetA._id, colourCategory: 'mixed' });
+
+    await Item.findByIdAndUpdate(item._id, { closetId: closetA._id });
+
+    const updatedCloset = await Closet.findById(closetA._id);
+    expect(updatedCloset.items.filter((id) => id.equals(item._id))).toHaveLength(1);
+  });
+
+  test('unassigning an item’s closet (closetId: null) removes it from that closet’s items array', async () => {
+    closetA = await Closet.create({ name: 'Jest Closet A' });
+    item = await Item.create({ type: 'other', closetId: closetA._id, colourCategory: 'mixed' });
+
+    await Item.findByIdAndUpdate(item._id, { closetId: null });
+
+    const updatedCloset = await Closet.findById(closetA._id);
+    const updatedItem = await Item.findById(item._id);
+    expect(updatedCloset.items).not.toContainEqual(item._id);
+    expect(updatedItem.closetId).toBeNull();
   });
 });

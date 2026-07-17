@@ -20,6 +20,19 @@ afterAll(async () => {
   await mongoose.disconnect();
 });
 
+describe('app-level behavior', () => {
+  test('GET /api/health returns ok', async () => {
+    const res = await request(app).get('/api/health');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ status: 'ok' });
+  });
+
+  test('a malformed id returns 400 via the CastError branch', async () => {
+    const res = await request(app).get('/api/closets/not-a-valid-id');
+    expect(res.status).toBe(400);
+  });
+});
+
 describe('closets routes', () => {
   let closetIds;
 
@@ -54,6 +67,23 @@ describe('closets routes', () => {
 
   test('GET /api/closets/:id returns 404 for a nonexistent id', async () => {
     const res = await request(app).get(`/api/closets/${new mongoose.Types.ObjectId()}`);
+    expect(res.status).toBe(404);
+  });
+
+  test('POST /api/closets with a missing required field returns 400', async () => {
+    const res = await request(app).post('/api/closets').send({ description: 'no name' });
+    expect(res.status).toBe(400);
+  });
+
+  test('PUT /api/closets/:id returns 404 for a nonexistent id', async () => {
+    const res = await request(app)
+      .put(`/api/closets/${new mongoose.Types.ObjectId()}`)
+      .send({ name: 'Renamed' });
+    expect(res.status).toBe(404);
+  });
+
+  test('DELETE /api/closets/:id returns 404 for a nonexistent id', async () => {
+    const res = await request(app).delete(`/api/closets/${new mongoose.Types.ObjectId()}`);
     expect(res.status).toBe(404);
   });
 
@@ -117,6 +147,44 @@ describe('items routes', () => {
   test('POST /api/items with a missing required field returns 400', async () => {
     const res = await request(app).post('/api/items').send({ colourCategory: 'mixed' });
     expect(res.status).toBe(400);
+  });
+
+  test('GET /api/items/:id gets a single item', async () => {
+    const item = await Item.create({ type: 'other', colourCategory: 'mixed' });
+    itemIds.push(item._id.toString());
+
+    const res = await request(app).get(`/api/items/${item._id}`);
+    expect(res.status).toBe(200);
+    expect(res.body._id).toBe(item._id.toString());
+  });
+
+  test('GET /api/items/:id returns 404 for a nonexistent id', async () => {
+    const res = await request(app).get(`/api/items/${new mongoose.Types.ObjectId()}`);
+    expect(res.status).toBe(404);
+  });
+
+  test('PUT /api/items/:id returns 404 for a nonexistent id', async () => {
+    const res = await request(app)
+      .put(`/api/items/${new mongoose.Types.ObjectId()}`)
+      .send({ wearStatus: 'dirty' });
+    expect(res.status).toBe(404);
+  });
+
+  test('DELETE /api/items/:id returns 404 for a nonexistent id', async () => {
+    const res = await request(app).delete(`/api/items/${new mongoose.Types.ObjectId()}`);
+    expect(res.status).toBe(404);
+  });
+
+  test('GET /api/items with no filter lists all items', async () => {
+    const closet = await Closet.create({ name: 'Route Test Closet' });
+    closetIds.push(closet._id.toString());
+
+    const item = await Item.create({ type: 'other', closetId: closet._id, colourCategory: 'mixed' });
+    itemIds.push(item._id.toString());
+
+    const res = await request(app).get('/api/items');
+    expect(res.status).toBe(200);
+    expect(res.body.map((i) => i._id)).toContainEqual(item._id.toString());
   });
 
   test('GET /api/items?closetId filters by closet', async () => {
