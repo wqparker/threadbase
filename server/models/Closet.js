@@ -9,6 +9,12 @@ const closetSchema = new mongoose.Schema({
   description: {
     type: String,
   },
+  items: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Item',
+    },
+  ],
 });
 
 module.exports = mongoose.model('Closet', closetSchema);

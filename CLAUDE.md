@@ -21,7 +21,7 @@
   /server/constants.js, never hardcoded inline in a schema or route
 - No custom item IDs — use MongoDB's built-in _id
 - Item nicknames are optional; derive a display name from
-  brand + colorCategory + type when nickname is empty, don't store a
+  brand + colourCategory + type when nickname is empty, don't store a
   separate "full name" field
 
 ## Implementation Philosophy
@@ -51,7 +51,7 @@ client/
                     LaundryScreen, ItemDetailScreen)
     services/     — API call wrappers (itemService.js, closetService.js,
                     laundryService.js)
-    utils/        — helpers (e.g. colorCategory display formatting)
+    utils/        — helpers (e.g. colourCategory display formatting)
     App.css
     App.jsx
     index.css

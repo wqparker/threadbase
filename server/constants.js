@@ -32,7 +32,7 @@ const CARE_SOURCES = ['manual', 'scanned'];
 
 module.exports = {
   ITEM_TYPES,
-  COLOR_CATEGORIES,
+  COLOUR_CATEGORIES,
   WEAR_STATUSES,
   WASH_TEMPS,
   DRY_METHODS,
