@@ -8,7 +8,7 @@ const app = require('./app');
 const PORT = process.env.PORT || 5000;
 
 mongoose
-  .connect(process.env.MONGO_URI, { dbName: process.env.MONGO_DB_NAME || 'threadbase' })
+  .connect(process.env.MONGO_URI, { dbName: process.env.MONGO_DB_NAME || 'threadbase-test' })
   .then(() => {
     console.log('Mongoose connected');
     app.listen(PORT, () => {
