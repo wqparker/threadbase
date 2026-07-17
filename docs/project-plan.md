@@ -16,9 +16,9 @@ A digital closet where clothing items are logged with location, type, brand, and
 
 ### MVP Features
 - **Closets** — named locations (e.g., "Bedroom Closet," "Hall Closet") that items belong to
-- **Items** — type (shirt, pants, etc.), brand, closet assignment, color(s), photo, last worn date, last washed date
+- **Items** — type (shirt, pants, etc.), brand, closet assignment, colour(s), photo, last worn date, last washed date
 - **Care Instructions** — wash temp, dry method, bleach OK, iron OK, delicate flag (entered manually for MVP)
-- **Laundry Load Grouping** — algorithm that takes all currently-dirty items and divides them into suggested wash loads based on compatibility (temperature, color/darkness, delicate handling)
+- **Laundry Load Grouping** — algorithm that takes all currently-dirty items and divides them into suggested wash loads based on compatibility (temperature, colour/darkness, delicate handling)
 
 ### Stretch Features (post-MVP, roughly in priority order)
 1. **Care-tag photo scanning** — photograph a wash tag, send to Claude's vision API, get back structured care-instruction JSON for the user to confirm/edit
@@ -37,16 +37,16 @@ Closet
 Item
   - _id              // MongoDB's built-in ObjectId — no custom item ID needed
   - nickname          // optional String, e.g. "Grey Henley"; falls back to a
-                      // derived name (brand + colorCategory + type) when empty —
+                      // derived name (brand + colourCategory + type) when empty —
                       // no separate "full name" field, to avoid two sources of truth
   - type              // enum: shirt, t-shirt, pants, shorts, jacket, sweater,
                       // dress, skirt, socks, underwear, other
   - brand
   - closetId (ref → Closet)
-  - colorCategory     // enum: white, light, dark, black, bright, mixed —
+  - colourCategory    // enum: white, light, dark, black, bright, mixed —
                       // this is what the grouping algorithm actually keys off,
-                      // not exact color
-  - color             // optional free-text (e.g. "navy blue"), for display only
+                      // not exact colour
+  - colour            // optional free-text (e.g. "navy blue"), for display only
   - photoUrl        // R2 key/URL only — never the binary image
   - careInstructions (embedded or ref → CareInstructions)
   - lastWorn
@@ -97,10 +97,10 @@ Designing in Figma first, starting with a "detailed view" desktop layout before 
 - Top bar shows the name of the closet currently being viewed
 - Hamburger icon (top left) toggles the left sidebar open/closed
 - Sidebar holds navigation: Closets, Clothes (all items regardless of closet), Laundry — plus Search and Add Item for now, though these are actions rather than destinations and will likely be split out of the sidebar later (e.g., into a floating "+" button and a header search icon)
-- Main area is a grid of item cards, each showing: photo, a colored wear-status badge (top right corner), and a nickname label (bottom)
+- Main area is a grid of item cards, each showing: photo, a coloured wear-status badge (top right corner), and a nickname label (bottom)
 - Bottom search bar — deliberately placed for thumb-reachability once this becomes a PWA on mobile
 
-**Wear-status badge colors:** green (clean) → yellow (light wear) → orange (heavy wear) → red (dirty, needs washing), driven by the `wearStatus` field. Colors alone aren't currently distinguishable for red-green colorblindness (~8% of men) — acknowledged, deferred; a small icon inside each badge (checkmark vs. droplet, etc.) is the planned fix whenever this gets revisited.
+**Wear-status badge colours:** green (clean) → yellow (light wear) → orange (heavy wear) → red (dirty, needs washing), driven by the `wearStatus` field. Colours alone aren't currently distinguishable for red-green colourblindness (~8% of men) — acknowledged, deferred; a small icon inside each badge (checkmark vs. droplet, etc.) is the planned fix whenever this gets revisited.
 
 **Open UI questions, to resolve as more screens get designed:**
 - Mobile layout: sidebar likely becomes a bottom tab bar (Closets/Clothes/Laundry as thumb-reachable tabs); grid likely drops to 2 columns or a single list
@@ -155,7 +155,7 @@ Since a stated goal is practicing employer-relevant workflows with Claude Code:
 ## 9. Open Items
 
 - Whether the wear-status badge should be tappable to manually cycle/override, and what that interaction looks like
-- Colorblind-accessible icon treatment for the wear-status badges (deferred, not forgotten)
+- Colourblind-accessible icon treatment for the wear-status badges (deferred, not forgotten)
 - Sidebar nav-vs-action split (Search/Add Item currently live alongside Closets/Clothes/Laundry; deferred, not forgotten)
 - Mobile layout variant of the sidebar/grid
 - Add Item flow — not yet designed

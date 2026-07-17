@@ -24,13 +24,13 @@ const itemSchema = new mongoose.Schema({
     required: true,
   },
   // What the laundry-grouping algorithm actually keys off — not exact colour
-  colorCategory: {
+  colourCategory: {
     type: String,
     enum: COLOUR_CATEGORIES,
     required: true,
   },
   // Optional free-text colour, for display only (e.g. "navy blue")
-  color: {
+  colour: {
     type: String, // I want to make this main colour enum
   },
   // R2 key/URL only — never the binary image itself

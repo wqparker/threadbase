@@ -13,10 +13,10 @@ In early development — currently setting up core CRUD (closets and items).
 
 ## Planned Features
 
-- Log clothing items by closet, type, brand, and color
+- Log clothing items by closet, type, brand, and colour
 - Track wear/wash status (clean → light → heavy → dirty) per item, with
   suggested loads generated automatically based on care compatibility
-  (temperature, color, delicates)
+  (temperature, colour, delicates)
 - Photo uploads per item
 - Care-tag photo scanning via Claude's vision API to auto-fill wash
   instructions
