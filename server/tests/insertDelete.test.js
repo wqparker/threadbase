@@ -173,4 +173,16 @@ describe('altering objects', () => {
     expect(updatedCloset.items).not.toContainEqual(item._id);
     expect(updatedItem.closetId).toBeNull();
   });
+
+  test('unassigning an item’s closet via $unset also removes it from that closet’s items array', async () => {
+    closetA = await Closet.create({ name: 'Jest Closet A' });
+    item = await Item.create({ type: 'other', closetId: closetA._id, colourCategory: 'mixed' });
+
+    await Item.findByIdAndUpdate(item._id, { $unset: { closetId: '' } });
+
+    const updatedCloset = await Closet.findById(closetA._id);
+    const updatedItem = await Item.findById(item._id);
+    expect(updatedCloset.items).not.toContainEqual(item._id);
+    expect(updatedItem.closetId).toBeUndefined();
+  });
 });

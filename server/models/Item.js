@@ -100,10 +100,12 @@ itemSchema.post('findOneAndUpdate', async function () {
 
   const update = this.getUpdate() || {};
   const setOps = update.$set || update;
-  if (!Object.prototype.hasOwnProperty.call(setOps, 'closetId')) return;
+  const isUnset = Object.prototype.hasOwnProperty.call(update.$unset || {}, 'closetId');
+  const isSet = Object.prototype.hasOwnProperty.call(setOps, 'closetId');
+  if (!isUnset && !isSet) return;
 
   const oldClosetId = previous.closetId?.toString();
-  const newClosetId = setOps.closetId?.toString();
+  const newClosetId = isUnset ? undefined : setOps.closetId?.toString();
   if (oldClosetId === newClosetId) return;
 
   const Closet = mongoose.model('Closet');
