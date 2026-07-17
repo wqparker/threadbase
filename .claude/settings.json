@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "agent",
+            "if": "Bash(git commit*)",
+            "prompt": "You are reviewing code about to be committed to the Threadbase project (a React/Vite + Node/Express/Mongoose closet-and-laundry tracker). Run `git diff --cached` to see the staged changes, then review them against these criteria:\n1. Correctness: logic errors, edge cases, null handling\n2. Schema adherence: enum values must match /server/constants.js - no hardcoded alternatives to defined enums (type, colourCategory, washTemp, wearStatus, etc.)\n3. Security: injection, data exposure\n4. Maintainability: naming, complexity, duplication\n\nIf you find real, concrete issues, list them with specific fixes and treat the review as failing. Minor or purely subjective style nitpicks alone should not fail the review. If nothing is staged, treat the review as passing.",
+            "model": "claude-sonnet-5",
+            "timeout": 120,
+            "statusMessage": "Running pre-commit code review..."
+          },
+          {
+            "type": "command",
+            "if": "Bash(git commit*)",
+            "command": "bash .claude/hooks/pre-commit-test-gate.sh",
+            "shell": "bash",
+            "timeout": 120,
+            "statusMessage": "Running backend test suite before commit..."
+          }
+        ]
+      }
+    ]
+  }
+}
