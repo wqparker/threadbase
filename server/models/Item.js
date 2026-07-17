@@ -61,6 +61,19 @@ const itemSchema = new mongoose.Schema({
   },
 });
 
+// Add newly-created items to their closet's items array. isNew flips to
+// false by the time post('save') fires, so it has to be captured here in
+// pre('save') and stashed on $locals to read back afterward.
+itemSchema.pre('save', function () {
+  this.$locals.wasNew = this.isNew;
+});
+
+itemSchema.post('save', async function (doc) {
+  if (doc.$locals.wasNew && doc.closetId) {
+    await mongoose.model('Closet').updateOne({ _id: doc.closetId }, { $addToSet: { items: doc._id } });
+  }
+});
+
 // Cascade cleanup on deletion via findByIdAndDelete/findOneAndDelete: an
 // item's own reference lives on Closet/LaundryLoad as array entries, so
 // deleting the item has to pull it out of both. Requires Closet and
