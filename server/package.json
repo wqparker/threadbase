@@ -3,7 +3,7 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand --verbose --coverage"
   },
   "dependencies": {
     "cors": "^2.8.6",
