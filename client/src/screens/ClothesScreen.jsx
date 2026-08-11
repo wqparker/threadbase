@@ -5,17 +5,42 @@ import { getItemDisplayName, getItemIcon } from '../utils/itemDisplay';
 import { ITEM_TYPES, COLOUR_CATEGORIES } from '../constants';
 
 function ClothesScreen({ closet, onBack }) {
-  const { items, loading, error, addItem, removeItem } = useItems(closet._id);
+  const { items, loading, error, addItem, editItem, removeItem } = useItems(closet._id);
   const [type, setType] = useState(ITEM_TYPES[0]);
   const [colourCategory, setColourCategory] = useState(COLOUR_CATEGORIES[0]);
   const [brand, setBrand] = useState('');
   const [nickname, setNickname] = useState('');
+
+  const [editingId, setEditingId] = useState(null);
+  const [editType, setEditType] = useState(ITEM_TYPES[0]);
+  const [editColourCategory, setEditColourCategory] = useState(COLOUR_CATEGORIES[0]);
+  const [editBrand, setEditBrand] = useState('');
+  const [editNickname, setEditNickname] = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
     await addItem({ type, colourCategory, brand, nickname, closetId: closet._id });
     setBrand('');
     setNickname('');
+  }
+
+  function startEditing(item) {
+    setEditingId(item._id);
+    setEditType(item.type);
+    setEditColourCategory(item.colourCategory);
+    setEditBrand(item.brand || '');
+    setEditNickname(item.nickname || '');
+  }
+
+  async function handleEditSubmit(e, id) {
+    e.preventDefault();
+    await editItem(id, {
+      type: editType,
+      colourCategory: editColourCategory,
+      brand: editBrand,
+      nickname: editNickname,
+    });
+    setEditingId(null);
   }
 
   return (
@@ -59,15 +84,53 @@ function ClothesScreen({ closet, onBack }) {
       {error && <p>Error: {error}</p>}
 
       <div className="item-grid">
-        {items.map((item) => (
-          <div key={item._id} className="item-card">
-            <img src={item.photoUrl || getItemIcon()} alt={getItemDisplayName(item)} />
-            <p>{getItemDisplayName(item)}</p>
-            <button type="button" onClick={() => removeItem(item._id)}>
-              Delete
-            </button>
-          </div>
-        ))}
+        {items.map((item) =>
+          editingId === item._id ? (
+            <form key={item._id} className="item-card" onSubmit={(e) => handleEditSubmit(e, item._id)}>
+              <select value={editType} onChange={(e) => setEditType(e.target.value)}>
+                {ITEM_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+              <select value={editColourCategory} onChange={(e) => setEditColourCategory(e.target.value)}>
+                {COLOUR_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                placeholder="Brand (optional)"
+                value={editBrand}
+                onChange={(e) => setEditBrand(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Nickname (optional)"
+                value={editNickname}
+                onChange={(e) => setEditNickname(e.target.value)}
+              />
+              <button type="submit">Save</button>
+              <button type="button" onClick={() => setEditingId(null)}>
+                Cancel
+              </button>
+            </form>
+          ) : (
+            <div key={item._id} className="item-card">
+              <img src={item.photoUrl || getItemIcon()} alt={getItemDisplayName(item)} />
+              <p>{getItemDisplayName(item)}</p>
+              <button type="button" onClick={() => startEditing(item)}>
+                Edit
+              </button>
+              <button type="button" onClick={() => removeItem(item._id)}>
+                Delete
+              </button>
+            </div>
+          )
+        )}
       </div>
     </section>
   );
