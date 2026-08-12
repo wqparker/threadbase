@@ -9,6 +9,7 @@ import { useClosets } from '../hooks/useClosets';
 import { getItemDisplayName, getItemIcon } from '../utils/itemDisplay';
 import { ITEM_TYPES, COLOUR_CATEGORIES } from '../constants';
 import ItemForm from './ItemForm';
+import AddExistingItems from './AddExistingItems';
 
 function buildEmptyForm(closetId) {
   return {
@@ -26,6 +27,7 @@ function ItemList({ closetId }) {
   const [formValues, setFormValues] = useState(() => buildEmptyForm(closetId));
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState(() => buildEmptyForm(closetId));
+  const [showExistingPicker, setShowExistingPicker] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -55,15 +57,32 @@ function ItemList({ closetId }) {
     setEditingId(null);
   }
 
+  async function handleAddExisting(ids) {
+    await Promise.all(ids.map((id) => editItem(id, { closetId })));
+  }
+
   return (
     <>
       <ItemForm
         values={formValues}
         onChange={setFormValues}
         onSubmit={handleSubmit}
-        submitLabel="Add item"
+        submitLabel="Create item"
         closets={closets}
       />
+
+      {closetId &&
+        (showExistingPicker ? (
+          <AddExistingItems
+            closetId={closetId}
+            onAdd={handleAddExisting}
+            onClose={() => setShowExistingPicker(false)}
+          />
+        ) : (
+          <button type="button" onClick={() => setShowExistingPicker(true)}>
+            Add existing item
+          </button>
+        ))}
 
       {loading && <p>Loading items...</p>}
       {error && <p>Error: {error}</p>}

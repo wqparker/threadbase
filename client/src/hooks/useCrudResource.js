@@ -48,13 +48,17 @@ export function useCrudResource(fetchFn, { createFn, updateFn, deleteFn, deps = 
   async function update(id, payload) {
     const updated = await updateFn(id, payload);
     setData((prev) => {
-      // Same idea on edit: if the update moved this item out of the
-      // current filter (e.g. reassigned to a different closet), drop it
-      // from this list instead of leaving a stale copy in place.
+      const exists = prev.some((item) => item._id === id);
+      // If the update moved this item out of the current filter (e.g.
+      // reassigned to a different closet), drop it instead of leaving a
+      // stale copy in place. If it moved into the filter from outside
+      // (e.g. an item elsewhere just reassigned to this closet), add it
+      // rather than no-op - .map() alone can't add a row that wasn't
+      // already in the list.
       if (belongs && !belongs(updated)) {
-        return prev.filter((item) => item._id !== id);
+        return exists ? prev.filter((item) => item._id !== id) : prev;
       }
-      return prev.map((item) => (item._id === id ? updated : item));
+      return exists ? prev.map((item) => (item._id === id ? updated : item)) : [...prev, updated];
     });
     return updated;
   }
