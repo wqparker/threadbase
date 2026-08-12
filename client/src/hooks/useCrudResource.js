@@ -5,7 +5,7 @@
 // naming (closets/addCloset/editCloset/removeCloset, etc).
 import { useEffect, useState } from 'react';
 
-export function useCrudResource(fetchFn, { createFn, updateFn, deleteFn, deps = [] }) {
+export function useCrudResource(fetchFn, { createFn, updateFn, deleteFn, deps = [], belongs }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -38,13 +38,24 @@ export function useCrudResource(fetchFn, { createFn, updateFn, deleteFn, deps = 
 
   async function create(payload) {
     const created = await createFn(payload);
-    setData((prev) => [...prev, created]);
+    // If belongs is given and the created item doesn't match the current
+    // filter (e.g. assigned to a different closet than this list is
+    // scoped to), leave local state alone rather than showing it here.
+    setData((prev) => (belongs && !belongs(created) ? prev : [...prev, created]));
     return created;
   }
 
   async function update(id, payload) {
     const updated = await updateFn(id, payload);
-    setData((prev) => prev.map((item) => (item._id === id ? updated : item)));
+    setData((prev) => {
+      // Same idea on edit: if the update moved this item out of the
+      // current filter (e.g. reassigned to a different closet), drop it
+      // from this list instead of leaving a stale copy in place.
+      if (belongs && !belongs(updated)) {
+        return prev.filter((item) => item._id !== id);
+      }
+      return prev.map((item) => (item._id === id ? updated : item));
+    });
     return updated;
   }
 

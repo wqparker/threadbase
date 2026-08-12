@@ -3,7 +3,7 @@
 // form - same fields either way, only the values/handlers/label differ.
 import { ITEM_TYPES, COLOUR_CATEGORIES } from '../constants';
 
-function ItemForm({ values, onChange, onSubmit, onCancel, submitLabel, className }) {
+function ItemForm({ values, onChange, onSubmit, onCancel, submitLabel, className, closets }) {
   function handleChange(field, value) {
     onChange({ ...values, [field]: value });
   }
@@ -21,6 +21,14 @@ function ItemForm({ values, onChange, onSubmit, onCancel, submitLabel, className
         {COLOUR_CATEGORIES.map((c) => (
           <option key={c} value={c}>
             {c}
+          </option>
+        ))}
+      </select>
+      <select value={values.closetId} onChange={(e) => handleChange('closetId', e.target.value)}>
+        <option value="">Unassigned</option>
+        {closets.map((closet) => (
+          <option key={closet._id} value={closet._id}>
+            {closet.name}
           </option>
         ))}
       </select>

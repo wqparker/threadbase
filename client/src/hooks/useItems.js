@@ -15,6 +15,7 @@ export function useItems(closetId) {
     updateFn: updateItem,
     deleteFn: deleteItem,
     deps: [closetId],
+    belongs: closetId ? (item) => item.closetId === closetId : undefined,
   });
 
   return { items, loading, error, addItem: create, editItem: update, removeItem: remove };
