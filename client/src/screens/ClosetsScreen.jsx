@@ -2,34 +2,33 @@
 import { useState } from 'react';
 import { useClosets } from '../hooks/useClosets';
 import { useActiveCloset } from '../hooks/useActiveCloset';
+import ClosetForm from '../components/ClosetForm';
+
+const EMPTY_FORM = { name: '', description: '' };
 
 function ClosetsScreen({ onNavigateToClosetDetail }) {
   const { closets, loading, error, addCloset, editCloset, removeCloset } = useClosets();
   const { setActiveCloset } = useActiveCloset();
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const [formValues, setFormValues] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
-  const [editName, setEditName] = useState('');
-  const [editDescription, setEditDescription] = useState('');
+  const [editValues, setEditValues] = useState(EMPTY_FORM);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!name.trim()) return;
-    await addCloset({ name, description });
-    setName('');
-    setDescription('');
+    if (!formValues.name.trim()) return;
+    await addCloset(formValues);
+    setFormValues(EMPTY_FORM);
   }
 
   function startEditing(closet) {
     setEditingId(closet._id);
-    setEditName(closet.name);
-    setEditDescription(closet.description || '');
+    setEditValues({ name: closet.name, description: closet.description || '' });
   }
 
   async function handleEditSubmit(e, id) {
     e.preventDefault();
-    if (!editName.trim()) return;
-    await editCloset(id, { name: editName, description: editDescription });
+    if (!editValues.name.trim()) return;
+    await editCloset(id, editValues);
     setEditingId(null);
   }
 
@@ -42,21 +41,7 @@ function ClosetsScreen({ onNavigateToClosetDetail }) {
     <section id="closets">
       <h1>Closets</h1>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Closet name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Description (optional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <button type="submit">Add closet</button>
-      </form>
+      <ClosetForm values={formValues} onChange={setFormValues} onSubmit={handleSubmit} submitLabel="Add closet" />
 
       {loading && <p>Loading closets...</p>}
       {error && <p>Error: {error}</p>}
@@ -65,22 +50,13 @@ function ClosetsScreen({ onNavigateToClosetDetail }) {
         {closets.map((closet) =>
           editingId === closet._id ? (
             <li key={closet._id}>
-              <form onSubmit={(e) => handleEditSubmit(e, closet._id)}>
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                />
-                <input
-                  type="text"
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                />
-                <button type="submit">Save</button>
-                <button type="button" onClick={() => setEditingId(null)}>
-                  Cancel
-                </button>
-              </form>
+              <ClosetForm
+                values={editValues}
+                onChange={setEditValues}
+                onSubmit={(e) => handleEditSubmit(e, closet._id)}
+                onCancel={() => setEditingId(null)}
+                submitLabel="Save"
+              />
             </li>
           ) : (
             <li key={closet._id}>

@@ -6,120 +6,66 @@ import { useState } from 'react';
 import { useItems } from '../hooks/useItems';
 import { getItemDisplayName, getItemIcon } from '../utils/itemDisplay';
 import { ITEM_TYPES, COLOUR_CATEGORIES } from '../constants';
+import ItemForm from './ItemForm';
+
+const EMPTY_FORM = { type: ITEM_TYPES[0], colourCategory: COLOUR_CATEGORIES[0], brand: '', nickname: '' };
 
 function ItemList({ closetId }) {
   const { items, loading, error, addItem, editItem, removeItem } = useItems(closetId);
-  const [type, setType] = useState(ITEM_TYPES[0]);
-  const [colourCategory, setColourCategory] = useState(COLOUR_CATEGORIES[0]);
-  const [brand, setBrand] = useState('');
-  const [nickname, setNickname] = useState('');
-
+  const [formValues, setFormValues] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
-  const [editType, setEditType] = useState(ITEM_TYPES[0]);
-  const [editColourCategory, setEditColourCategory] = useState(COLOUR_CATEGORIES[0]);
-  const [editBrand, setEditBrand] = useState('');
-  const [editNickname, setEditNickname] = useState('');
+  const [editValues, setEditValues] = useState(EMPTY_FORM);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    await addItem({ type, colourCategory, brand, nickname, closetId });
-    setBrand('');
-    setNickname('');
+    await addItem({ ...formValues, closetId });
+    setFormValues((prev) => ({ ...prev, brand: '', nickname: '' }));
   }
 
   function startEditing(item) {
     setEditingId(item._id);
-    setEditType(item.type);
-    setEditColourCategory(item.colourCategory);
-    setEditBrand(item.brand || '');
-    setEditNickname(item.nickname || '');
+    setEditValues({
+      type: item.type,
+      colourCategory: item.colourCategory,
+      brand: item.brand || '',
+      nickname: item.nickname || '',
+    });
   }
 
   async function handleEditSubmit(e, id) {
     e.preventDefault();
-    await editItem(id, {
-      type: editType,
-      colourCategory: editColourCategory,
-      brand: editBrand,
-      nickname: editNickname,
-    });
+    await editItem(id, editValues);
     setEditingId(null);
   }
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
-        <select value={type} onChange={(e) => setType(e.target.value)}>
-          {ITEM_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
-        <select value={colourCategory} onChange={(e) => setColourCategory(e.target.value)}>
-          {COLOUR_CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-        <input
-          type="text"
-          placeholder="Brand (optional)"
-          value={brand}
-          onChange={(e) => setBrand(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Nickname (optional)"
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-        />
-        <button type="submit">Add item</button>
-      </form>
+      <ItemForm values={formValues} onChange={setFormValues} onSubmit={handleSubmit} submitLabel="Add item" />
 
       {loading && <p>Loading items...</p>}
       {error && <p>Error: {error}</p>}
 
       <div className="item-grid">
-        {items.map((item) =>
-          editingId === item._id ? (
-            <form key={item._id} className="item-card" onSubmit={(e) => handleEditSubmit(e, item._id)}>
-              <select value={editType} onChange={(e) => setEditType(e.target.value)}>
-                {ITEM_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-              <select value={editColourCategory} onChange={(e) => setEditColourCategory(e.target.value)}>
-                {COLOUR_CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="text"
-                placeholder="Brand (optional)"
-                value={editBrand}
-                onChange={(e) => setEditBrand(e.target.value)}
+        {items.map((item) => {
+          if (editingId === item._id) {
+            return (
+              <ItemForm
+                key={item._id}
+                className="item-card"
+                values={editValues}
+                onChange={setEditValues}
+                onSubmit={(e) => handleEditSubmit(e, item._id)}
+                onCancel={() => setEditingId(null)}
+                submitLabel="Save"
               />
-              <input
-                type="text"
-                placeholder="Nickname (optional)"
-                value={editNickname}
-                onChange={(e) => setEditNickname(e.target.value)}
-              />
-              <button type="submit">Save</button>
-              <button type="button" onClick={() => setEditingId(null)}>
-                Cancel
-              </button>
-            </form>
-          ) : (
+            );
+          }
+
+          const displayName = getItemDisplayName(item);
+          return (
             <div key={item._id} className="item-card">
-              <img src={item.photoUrl || getItemIcon()} alt={getItemDisplayName(item)} />
-              <p>{getItemDisplayName(item)}</p>
+              <img src={item.photoUrl || getItemIcon()} alt={displayName} />
+              <p>{displayName}</p>
               <button type="button" onClick={() => startEditing(item)}>
                 Edit
               </button>
@@ -127,8 +73,8 @@ function ItemList({ closetId }) {
                 Delete
               </button>
             </div>
-          )
-        )}
+          );
+        })}
       </div>
     </>
   );
