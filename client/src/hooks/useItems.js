@@ -8,6 +8,7 @@ export function useItems(closetId) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!closetId) return;
     let cancelled = false;
     setLoading(true);
     getItems(closetId)

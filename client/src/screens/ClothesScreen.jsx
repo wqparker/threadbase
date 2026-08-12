@@ -1,11 +1,13 @@
 // client/src/screens/ClothesScreen.jsx
 import { useState } from 'react';
 import { useItems } from '../hooks/useItems';
+import { useActiveCloset } from '../hooks/useActiveCloset';
 import { getItemDisplayName, getItemIcon } from '../utils/itemDisplay';
 import { ITEM_TYPES, COLOUR_CATEGORIES } from '../constants';
 
-function ClothesScreen({ closet, onBack }) {
-  const { items, loading, error, addItem, editItem, removeItem } = useItems(closet._id);
+function ClothesScreen() {
+  const { activeCloset } = useActiveCloset();
+  const { items, loading, error, addItem, editItem, removeItem } = useItems(activeCloset?._id);
   const [type, setType] = useState(ITEM_TYPES[0]);
   const [colourCategory, setColourCategory] = useState(COLOUR_CATEGORIES[0]);
   const [brand, setBrand] = useState('');
@@ -17,9 +19,18 @@ function ClothesScreen({ closet, onBack }) {
   const [editBrand, setEditBrand] = useState('');
   const [editNickname, setEditNickname] = useState('');
 
+  if (!activeCloset) {
+    return (
+      <section id="clothes">
+        <h1>Clothes</h1>
+        <p>Select a closet from the Closets tab to see its items.</p>
+      </section>
+    );
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
-    await addItem({ type, colourCategory, brand, nickname, closetId: closet._id });
+    await addItem({ type, colourCategory, brand, nickname, closetId: activeCloset._id });
     setBrand('');
     setNickname('');
   }
@@ -45,10 +56,7 @@ function ClothesScreen({ closet, onBack }) {
 
   return (
     <section id="clothes">
-      <button type="button" onClick={onBack}>
-        &larr; Back to closets
-      </button>
-      <h1>{closet.name}</h1>
+      <h1>{activeCloset.name}</h1>
 
       <form onSubmit={handleSubmit}>
         <select value={type} onChange={(e) => setType(e.target.value)}>

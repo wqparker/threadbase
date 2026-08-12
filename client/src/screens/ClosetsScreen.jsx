@@ -1,9 +1,11 @@
 // client/src/screens/ClosetsScreen.jsx
 import { useState } from 'react';
 import { useClosets } from '../hooks/useClosets';
+import { useActiveCloset } from '../hooks/useActiveCloset';
 
-function ClosetsScreen({ onSelectCloset }) {
+function ClosetsScreen({ onNavigateToClothes }) {
   const { closets, loading, error, addCloset, editCloset, removeCloset } = useClosets();
+  const { setActiveCloset } = useActiveCloset();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [editingId, setEditingId] = useState(null);
@@ -29,6 +31,11 @@ function ClosetsScreen({ onSelectCloset }) {
     if (!editName.trim()) return;
     await editCloset(id, { name: editName, description: editDescription });
     setEditingId(null);
+  }
+
+  function handleSelect(closet) {
+    setActiveCloset(closet);
+    onNavigateToClothes();
   }
 
   return (
@@ -77,7 +84,7 @@ function ClosetsScreen({ onSelectCloset }) {
             </li>
           ) : (
             <li key={closet._id}>
-              <button type="button" onClick={() => onSelectCloset(closet)}>
+              <button type="button" onClick={() => handleSelect(closet)}>
                 <strong>{closet.name}</strong>
                 {closet.description && <span> — {closet.description}</span>}
               </button>
