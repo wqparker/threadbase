@@ -85,6 +85,20 @@ itemSchema.post('findOneAndDelete', async function (doc) {
   await mongoose.model('LaundryLoad').updateMany({ items: doc._id }, { $pull: { items: doc._id } });
 });
 
+// Normalizes whether a findOneAndUpdate() update touches `field`, and its
+// effective new value, across the three shapes Mongoose accepts: a bare
+// top-level assignment, { $set: { field } }, or { $unset: { field: '' } }.
+function getFieldUpdate(update, field) {
+  if (Object.prototype.hasOwnProperty.call(update.$unset || {}, field)) {
+    return { touched: true, value: undefined };
+  }
+  const setOps = update.$set || update;
+  if (Object.prototype.hasOwnProperty.call(setOps, field)) {
+    return { touched: true, value: setOps[field] };
+  }
+  return { touched: false, value: undefined };
+}
+
 // Keep Closet.items in sync when an item moves closets via
 // findByIdAndUpdate/findOneAndUpdate (not covered: doc.save()). The doc
 // findOneAndUpdate's post-hook receives is the pre-update document unless
@@ -99,13 +113,11 @@ itemSchema.post('findOneAndUpdate', async function () {
   if (!previous) return;
 
   const update = this.getUpdate() || {};
-  const setOps = update.$set || update;
-  const isUnset = Object.prototype.hasOwnProperty.call(update.$unset || {}, 'closetId');
-  const isSet = Object.prototype.hasOwnProperty.call(setOps, 'closetId');
-  if (!isUnset && !isSet) return;
+  const { touched, value: newClosetIdRaw } = getFieldUpdate(update, 'closetId');
+  if (!touched) return;
 
   const oldClosetId = previous.closetId?.toString();
-  const newClosetId = isUnset ? undefined : setOps.closetId?.toString();
+  const newClosetId = newClosetIdRaw?.toString();
   if (oldClosetId === newClosetId) return;
 
   const Closet = mongoose.model('Closet');
