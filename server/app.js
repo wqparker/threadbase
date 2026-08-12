@@ -5,6 +5,11 @@
 const express = require('express');
 const cors = require('cors');
 
+// Registers every model with mongoose - see models/index.js for why this
+// needs to be centralized rather than left to whichever routes happen to
+// require a given model directly.
+require('./models');
+
 const closetsRouter = require('./routes/closets');
 const itemsRouter = require('./routes/items');
 
