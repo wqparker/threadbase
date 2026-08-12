@@ -8,7 +8,6 @@ export function useItems(closetId) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!closetId) return;
     let cancelled = false;
     // Deliberate: flips the loading flag before the fetch starts. The
     // "cascading render" this rule warns about is real but negligible here -

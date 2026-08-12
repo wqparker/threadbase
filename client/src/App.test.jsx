@@ -12,10 +12,11 @@ vi.mock('./services/closetService');
 vi.mock('./services/itemService');
 
 const closet = { _id: 'closet1', name: 'Winter Closet', description: '' };
+const item = { _id: 'item1', type: 'shirt', colourCategory: 'dark', closetId: 'closet1' };
 
 beforeEach(() => {
   closetService.getClosets.mockResolvedValue([closet]);
-  itemService.getItems.mockResolvedValue([]);
+  itemService.getItems.mockResolvedValue([item]);
 });
 
 describe('App navigation', () => {
@@ -24,7 +25,7 @@ describe('App navigation', () => {
     expect(await screen.findByRole('heading', { name: 'Closets' })).toBeInTheDocument();
   });
 
-  test('selecting a closet navigates to Clothes and shows that closet', async () => {
+  test('selecting a closet shows its own detail view, not the global Clothes view', async () => {
     const user = userEvent.setup();
     render(<App />);
 
@@ -32,14 +33,17 @@ describe('App navigation', () => {
     await user.click(closetButton);
 
     expect(await screen.findByRole('heading', { name: 'Winter Closet' })).toBeInTheDocument();
+    expect(itemService.getItems).toHaveBeenCalledWith('closet1');
   });
 
-  test('Clothes view without an active closet prompts to pick one', async () => {
+  test('Clothes view lists all items with no closet filter, regardless of active closet', async () => {
     const user = userEvent.setup();
     render(<App />);
 
     await user.click(screen.getByRole('button', { name: 'Clothes' }));
-    expect(screen.getByText(/Select a closet/)).toBeInTheDocument();
+
+    expect(await screen.findByRole('heading', { name: 'Clothes' })).toBeInTheDocument();
+    expect(itemService.getItems).toHaveBeenCalledWith(undefined);
   });
 
   test('Laundry nav link shows the placeholder screen', async () => {

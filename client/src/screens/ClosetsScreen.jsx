@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useClosets } from '../hooks/useClosets';
 import { useActiveCloset } from '../hooks/useActiveCloset';
 
-function ClosetsScreen({ onNavigateToClothes }) {
+function ClosetsScreen({ onNavigateToClosetDetail }) {
   const { closets, loading, error, addCloset, editCloset, removeCloset } = useClosets();
   const { setActiveCloset } = useActiveCloset();
   const [name, setName] = useState('');
@@ -35,7 +35,7 @@ function ClosetsScreen({ onNavigateToClothes }) {
 
   function handleSelect(closet) {
     setActiveCloset(closet);
-    onNavigateToClothes();
+    onNavigateToClosetDetail();
   }
 
   return (
