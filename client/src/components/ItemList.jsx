@@ -1,8 +1,7 @@
 // client/src/components/ItemList.jsx
 // Shared grid + add/edit/delete UI for a set of items. Pass closetId to
-// scope to one closet (and show the Add-Item form attaching new items to
-// it); omit it to show every item regardless of closet, read-only for
-// creation (adding an unassigned item isn't a supported flow yet).
+// scope to one closet, so new items get attached to it; omit it to show
+// every item regardless of closet - new items are just created unassigned.
 import { useState } from 'react';
 import { useItems } from '../hooks/useItems';
 import { getItemDisplayName, getItemIcon } from '../utils/itemDisplay';
@@ -49,37 +48,35 @@ function ItemList({ closetId }) {
 
   return (
     <>
-      {closetId && (
-        <form onSubmit={handleSubmit}>
-          <select value={type} onChange={(e) => setType(e.target.value)}>
-            {ITEM_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-          <select value={colourCategory} onChange={(e) => setColourCategory(e.target.value)}>
-            {COLOUR_CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-          <input
-            type="text"
-            placeholder="Brand (optional)"
-            value={brand}
-            onChange={(e) => setBrand(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Nickname (optional)"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-          />
-          <button type="submit">Add item</button>
-        </form>
-      )}
+      <form onSubmit={handleSubmit}>
+        <select value={type} onChange={(e) => setType(e.target.value)}>
+          {ITEM_TYPES.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
+        <select value={colourCategory} onChange={(e) => setColourCategory(e.target.value)}>
+          {COLOUR_CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+        <input
+          type="text"
+          placeholder="Brand (optional)"
+          value={brand}
+          onChange={(e) => setBrand(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Nickname (optional)"
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+        />
+        <button type="submit">Add item</button>
+      </form>
 
       {loading && <p>Loading items...</p>}
       {error && <p>Error: {error}</p>}
