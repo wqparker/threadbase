@@ -21,6 +21,10 @@ export function useClosets() {
   }, []);
 
   useEffect(() => {
+    // Deliberate: refresh() sets loading/data/error to kick off the initial
+    // fetch. The "cascading render" this rule warns about is real but
+    // negligible here - a single extra render to flip loading true.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh();
   }, [refresh]);
 

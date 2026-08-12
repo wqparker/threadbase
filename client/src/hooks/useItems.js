@@ -10,6 +10,10 @@ export function useItems(closetId) {
   useEffect(() => {
     if (!closetId) return;
     let cancelled = false;
+    // Deliberate: flips the loading flag before the fetch starts. The
+    // "cascading render" this rule warns about is real but negligible here -
+    // a single extra render to flip loading true.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     getItems(closetId)
       .then((data) => {
