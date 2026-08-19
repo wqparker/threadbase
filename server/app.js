@@ -12,6 +12,7 @@ require('./models');
 
 const closetsRouter = require('./routes/closets');
 const itemsRouter = require('./routes/items');
+const laundryRouter = require('./routes/laundry');
 
 const app = express();
 app.use(cors());
@@ -23,6 +24,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/closets', closetsRouter);
 app.use('/api/items', itemsRouter);
+app.use('/api/laundry', laundryRouter);
 
 // Express 5 forwards rejected promises from async route handlers here
 // automatically, so route handlers don't need their own try/catch.

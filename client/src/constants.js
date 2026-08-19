@@ -15,3 +15,16 @@ export const ITEM_TYPES = [
 ];
 
 export const COLOUR_CATEGORIES = ['white', 'light', 'dark', 'black', 'bright', 'mixed'];
+
+export const WEAR_STATUSES = ['clean', 'light', 'heavy', 'dirty'];
+
+export const WASH_TEMPS = ['cold', 'warm', 'hot'];
+
+export const DRY_METHODS = [
+  'machine-low',
+  'machine-medium',
+  'machine-high',
+  'air-dry',
+  'flat-dry',
+  'do-not-dry',
+];

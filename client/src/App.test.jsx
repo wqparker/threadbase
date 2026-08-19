@@ -12,11 +12,20 @@ vi.mock('./services/closetService');
 vi.mock('./services/itemService');
 
 const closet = { _id: 'closet1', name: 'Winter Closet', description: '' };
-const item = { _id: 'item1', type: 'shirt', colourCategory: 'dark', closetId: 'closet1' };
+const item = {
+  _id: 'item1',
+  type: 'shirt',
+  colourCategory: 'dark',
+  closetId: 'closet1',
+  wearStatus: 'dirty',
+};
 
 beforeEach(() => {
   closetService.getClosets.mockResolvedValue([closet]);
   itemService.getItems.mockResolvedValue([item]);
+  itemService.updateItem.mockResolvedValue(item);
+  itemService.deleteItem.mockResolvedValue(null);
+  itemService.createItem.mockResolvedValue(item);
 });
 
 describe('App navigation', () => {
@@ -46,11 +55,85 @@ describe('App navigation', () => {
     expect(itemService.getItems).toHaveBeenCalledWith(undefined);
   });
 
-  test('Laundry nav link shows the placeholder screen', async () => {
+  test('adding a new item via "Add new" creates it and collapses the form back', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Clothes' }));
+    await user.click(screen.getByRole('button', { name: 'Add new' }));
+    await user.click(screen.getByRole('button', { name: 'Create item' }));
+
+    expect(itemService.createItem).toHaveBeenCalled();
+    expect(await screen.findByRole('button', { name: 'Add new' })).toBeInTheDocument();
+  });
+
+  test('clicking an item card shows its detail screen with full info', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Clothes' }));
+    const itemButton = await screen.findByRole('button', { name: /dark shirt/i });
+    await user.click(itemButton);
+
+    expect(await screen.findByRole('heading', { name: /dark shirt/i })).toBeInTheDocument();
+    expect(screen.getByText('shirt')).toBeInTheDocument();
+  });
+
+  test('editing an item from its detail screen updates it in place', async () => {
+    const user = userEvent.setup();
+    const updatedItem = { ...item, brand: 'Acme' };
+    itemService.updateItem.mockResolvedValue(updatedItem);
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Clothes' }));
+    const itemButton = await screen.findByRole('button', { name: /dark shirt/i });
+    await user.click(itemButton);
+    await screen.findByRole('heading', { name: /dark shirt/i });
+
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+    const brandInput = screen.getByPlaceholderText('Brand (optional)');
+    await user.clear(brandInput);
+    await user.type(brandInput, 'Acme');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(itemService.updateItem).toHaveBeenCalledWith(
+      'item1',
+      expect.objectContaining({ brand: 'Acme' })
+    );
+    expect(await screen.findByText('Acme')).toBeInTheDocument();
+  });
+
+  test('deleting an item from its detail screen returns to the origin view', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Clothes' }));
+    const itemButton = await screen.findByRole('button', { name: /dark shirt/i });
+    await user.click(itemButton);
+    await screen.findByRole('heading', { name: /dark shirt/i });
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(itemService.deleteItem).toHaveBeenCalledWith('item1');
+    expect(await screen.findByRole('heading', { name: 'Clothes' })).toBeInTheDocument();
+  });
+
+  test('Laundry nav link shows the laundry screen', async () => {
     const user = userEvent.setup();
     render(<App />);
 
     await user.click(screen.getByRole('button', { name: 'Laundry' }));
-    expect(screen.getByText('Coming soon.')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Laundry' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: "Generate today's laundry loads" })).toBeInTheDocument();
+  });
+
+  test('Laundry screen always lists currently-dirty items, generated or not', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Laundry' }));
+
+    expect(await screen.findByRole('heading', { name: 'Dirty clothes' })).toBeInTheDocument();
+    expect(await screen.findByText('dark shirt')).toBeInTheDocument();
   });
 });
