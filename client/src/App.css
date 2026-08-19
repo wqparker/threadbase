@@ -33,6 +33,20 @@
   margin-bottom: 16px;
 }
 
+.item-detail-title-input {
+  font-family: var(--heading);
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--text-h);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: 16px 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;

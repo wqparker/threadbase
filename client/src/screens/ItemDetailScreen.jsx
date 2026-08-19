@@ -1,16 +1,21 @@
 // client/src/screens/ItemDetailScreen.jsx
 // Reached by clicking an item card in ItemList - shows every field for one
-// item, with Edit/Delete living only here (not on the grid cards). Calls
-// itemService directly rather than going through useItems/useCrudResource:
-// this screen isn't scoped to any one closet's list, and the screens that
-// list items fully unmount when navigating away, so their own lists
-// refetch fresh on return - there's no cache here to keep in sync.
+// item, with Edit/Delete living only here (not on the grid cards). Edit
+// swaps values in place (same dl layout, inputs/selects where the text
+// was) rather than switching to ItemForm - ItemForm's stacked layout
+// doesn't fit here, so this duplicates its 5 editable fields inline
+// instead of reusing it.
+// Calls itemService directly rather than going through useItems/
+// useCrudResource: this screen isn't scoped to any one closet's list, and
+// the screens that list items fully unmount when navigating away, so
+// their own lists refetch fresh on return - there's no cache here to keep
+// in sync.
 import { useState } from 'react';
 import { useActiveItem } from '../hooks/useActiveItem';
 import { useClosets } from '../hooks/useClosets';
 import { updateItem, deleteItem } from '../services/itemService';
 import { getItemDisplayName, getItemIcon } from '../utils/itemDisplay';
-import ItemForm from '../components/ItemForm';
+import { ITEM_TYPES, COLOUR_CATEGORIES } from '../constants';
 
 function ItemDetailScreen({ onBack }) {
   const { activeItem, setActiveItem } = useActiveItem();
@@ -24,6 +29,10 @@ function ItemDetailScreen({ onBack }) {
         <p>No item selected - go to Clothes or a closet and pick one.</p>
       </section>
     );
+  }
+
+  function handleChange(field, value) {
+    setEditValues((prev) => ({ ...prev, [field]: value }));
   }
 
   function startEditing() {
@@ -66,22 +75,96 @@ function ItemDetailScreen({ onBack }) {
         Back
       </button>
 
+      <img
+        className="item-detail-image"
+        src={activeItem.photoUrl || getItemIcon()}
+        alt={displayName}
+      />
+
       {isEditing ? (
-        <ItemForm
-          values={editValues}
-          onChange={setEditValues}
-          onSubmit={handleEditSubmit}
-          onCancel={() => setIsEditing(false)}
-          submitLabel="Save"
-          closets={closets}
-        />
+        <form onSubmit={handleEditSubmit}>
+          <input
+            className="item-detail-title-input"
+            type="text"
+            placeholder="Nickname (optional)"
+            value={editValues.nickname}
+            onChange={(e) => handleChange('nickname', e.target.value)}
+          />
+          <dl>
+            <dt>Type</dt>
+            <dd>
+              <select value={editValues.type} onChange={(e) => handleChange('type', e.target.value)}>
+                {ITEM_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </dd>
+            <dt>Brand</dt>
+            <dd>
+              <input
+                type="text"
+                placeholder="Brand (optional)"
+                value={editValues.brand}
+                onChange={(e) => handleChange('brand', e.target.value)}
+              />
+            </dd>
+            <dt>Closet</dt>
+            <dd>
+              <select
+                value={editValues.closetId}
+                onChange={(e) => handleChange('closetId', e.target.value)}
+              >
+                <option value="">Unassigned</option>
+                {closets.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </dd>
+            <dt>Colour category</dt>
+            <dd>
+              <select
+                value={editValues.colourCategory}
+                onChange={(e) => handleChange('colourCategory', e.target.value)}
+              >
+                {COLOUR_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </dd>
+            <dt>Colour</dt>
+            <dd>{activeItem.colour || '—'}</dd>
+            <dt>Wear status</dt>
+            <dd>{activeItem.wearStatus}</dd>
+            <dt>Wear count</dt>
+            <dd>{activeItem.wearCount}</dd>
+            <dt>Last worn</dt>
+            <dd>{activeItem.lastWorn ? new Date(activeItem.lastWorn).toLocaleDateString() : '—'}</dd>
+            <dt>Last washed</dt>
+            <dd>{activeItem.lastWashed ? new Date(activeItem.lastWashed).toLocaleDateString() : '—'}</dd>
+            <dt>Wash temp</dt>
+            <dd>{care.washTemp || '—'}</dd>
+            <dt>Dry method</dt>
+            <dd>{care.dryMethod || '—'}</dd>
+            <dt>Bleach OK</dt>
+            <dd>{care.bleachOk ? 'Yes' : 'No'}</dd>
+            <dt>Iron OK</dt>
+            <dd>{care.ironOk ? 'Yes' : 'No'}</dd>
+            <dt>Delicate</dt>
+            <dd>{care.delicate ? 'Yes' : 'No'}</dd>
+          </dl>
+          <button type="submit">Save</button>
+          <button type="button" onClick={() => setIsEditing(false)}>
+            Cancel
+          </button>
+        </form>
       ) : (
         <>
-          <img
-            className="item-detail-image"
-            src={activeItem.photoUrl || getItemIcon()}
-            alt={displayName}
-          />
           <h1>{displayName}</h1>
           <dl>
             <dt>Type</dt>

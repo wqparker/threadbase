@@ -60,6 +60,30 @@ describe('App navigation', () => {
     expect(screen.getByText('shirt')).toBeInTheDocument();
   });
 
+  test('editing an item from its detail screen updates it in place', async () => {
+    const user = userEvent.setup();
+    const updatedItem = { ...item, brand: 'Acme' };
+    itemService.updateItem.mockResolvedValue(updatedItem);
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Clothes' }));
+    const itemButton = await screen.findByRole('button', { name: /dark shirt/i });
+    await user.click(itemButton);
+    await screen.findByRole('heading', { name: /dark shirt/i });
+
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+    const brandInput = screen.getByPlaceholderText('Brand (optional)');
+    await user.clear(brandInput);
+    await user.type(brandInput, 'Acme');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(itemService.updateItem).toHaveBeenCalledWith(
+      'item1',
+      expect.objectContaining({ brand: 'Acme' })
+    );
+    expect(await screen.findByText('Acme')).toBeInTheDocument();
+  });
+
   test('deleting an item from its detail screen returns to the origin view', async () => {
     const user = userEvent.setup();
     render(<App />);
