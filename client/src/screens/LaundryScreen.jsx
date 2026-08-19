@@ -13,16 +13,6 @@ function LaundryScreen() {
     <section id="laundry">
       <h1>Laundry</h1>
 
-      <h2>Dirty clothes</h2>
-      {itemsLoading && <p>Loading items...</p>}
-      {itemsError && <p>Error: {itemsError}</p>}
-      {!itemsLoading && !itemsError && dirtyItems.length === 0 && <p>Nothing dirty right now.</p>}
-      <div className="item-grid">
-        {dirtyItems.map((item) => (
-          <ItemCard key={item._id} item={item} />
-        ))}
-      </div>
-
       <button type="button" onClick={generateLoads} disabled={loading}>
         {loading ? 'Generating...' : "Generate today's laundry loads"}
       </button>
@@ -40,6 +30,16 @@ function LaundryScreen() {
           </div>
         </div>
       ))}
+
+      <h2>Dirty clothes</h2>
+      {itemsLoading && <p>Loading items...</p>}
+      {itemsError && <p>Error: {itemsError}</p>}
+      {!itemsLoading && !itemsError && dirtyItems.length === 0 && <p>Nothing dirty right now.</p>}
+      <div className="item-grid">
+        {dirtyItems.map((item) => (
+          <ItemCard key={item._id} item={item} />
+        ))}
+      </div>
     </section>
   );
 }
