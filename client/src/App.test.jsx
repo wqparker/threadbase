@@ -12,7 +12,13 @@ vi.mock('./services/closetService');
 vi.mock('./services/itemService');
 
 const closet = { _id: 'closet1', name: 'Winter Closet', description: '' };
-const item = { _id: 'item1', type: 'shirt', colourCategory: 'dark', closetId: 'closet1' };
+const item = {
+  _id: 'item1',
+  type: 'shirt',
+  colourCategory: 'dark',
+  closetId: 'closet1',
+  wearStatus: 'dirty',
+};
 
 beforeEach(() => {
   closetService.getClosets.mockResolvedValue([closet]);
@@ -106,5 +112,15 @@ describe('App navigation', () => {
     await user.click(screen.getByRole('button', { name: 'Laundry' }));
     expect(await screen.findByRole('heading', { name: 'Laundry' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: "Generate today's laundry loads" })).toBeInTheDocument();
+  });
+
+  test('Laundry screen always lists currently-dirty items, generated or not', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Laundry' }));
+
+    expect(await screen.findByRole('heading', { name: 'Dirty clothes' })).toBeInTheDocument();
+    expect(await screen.findByText('dark shirt')).toBeInTheDocument();
   });
 });
