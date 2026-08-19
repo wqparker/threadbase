@@ -1,12 +1,12 @@
 ---
-name: open-PR
+name: open-pr
 allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git log:*), Bash(git push:*), Bash(gh pr create:*), Bash(gh pr view:*)
 description: Open a GitHub PR for the current feature branch into main
 disable-model-invocation: true
 ---
 
 ## Current State
-- Branch: !`git branch --show-current`
+- Branch: !`git branch O-show-current`
 - Status: !`git status`
 - Commits ahead of main: !`git log main..HEAD --oneline`
 
