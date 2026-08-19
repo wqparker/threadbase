@@ -115,6 +115,26 @@
   gap: 32px 24px;
 }
 
+/* The clothing icon PNGs (e.g. s-shirt.png) turn out not to actually be
+   transparent - they're black line art on an opaque white background, so
+   in dark mode they show as a jarring white box on the dark card. Invert
+   (white bg -> black, black lines -> white) then screen-blend against the
+   card background: screen makes the now-black background pixels resolve
+   to exactly the card's colour (invisible), while the now-white line
+   pixels stay white and visible. Same media-query/attribute dual pattern
+   as the [data-theme] tokens in index.css. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .item-card img {
+    filter: invert(1);
+    mix-blend-mode: screen;
+  }
+}
+
+:root[data-theme='dark'] .item-card img {
+  filter: invert(1);
+  mix-blend-mode: screen;
+}
+
 .item-card {
   position: relative;
   aspect-ratio: 1 / 1;
