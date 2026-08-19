@@ -15,6 +15,12 @@
   --green: #22c55e;
   --green-light: #d9f7df;
   --sidebar-hover-bg: rgba(255, 255, 255, 0.5);
+
+  /* wearStatus badge colours - constant across light/dark, not just
+     app-shell tokens. clean reuses --green rather than a near-duplicate. */
+  --wear-light: #eab308;
+  --wear-heavy: #f97316;
+  --wear-dirty: #ef4444;
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 

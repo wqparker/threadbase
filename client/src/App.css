@@ -154,6 +154,33 @@
   object-fit: contain;
 }
 
+.wear-status-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.wear-status-clean {
+  background: var(--green);
+}
+
+.wear-status-light {
+  background: var(--wear-light);
+}
+
+.wear-status-heavy {
+  background: var(--wear-heavy);
+}
+
+.wear-status-dirty {
+  background: var(--wear-dirty);
+}
+
 .item-card p {
   position: absolute;
   bottom: -14px;

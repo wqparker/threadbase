@@ -6,8 +6,15 @@ import { getItemDisplayName, getItemIcon } from '../utils/itemDisplay';
 
 function ItemCard({ item, onClick }) {
   const displayName = getItemDisplayName(item);
+  const wearStatus = item.wearStatus || 'clean';
   const content = (
     <>
+      <span
+        className={`wear-status-badge wear-status-${wearStatus}`}
+        role="img"
+        aria-label={`Wear status: ${wearStatus}`}
+        title={wearStatus}
+      />
       <img src={item.photoUrl || getItemIcon()} alt={displayName} />
       <p>{displayName}</p>
     </>
