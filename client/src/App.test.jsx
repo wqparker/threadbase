@@ -46,11 +46,12 @@ describe('App navigation', () => {
     expect(itemService.getItems).toHaveBeenCalledWith(undefined);
   });
 
-  test('Laundry nav link shows the placeholder screen', async () => {
+  test('Laundry nav link shows the laundry screen', async () => {
     const user = userEvent.setup();
     render(<App />);
 
     await user.click(screen.getByRole('button', { name: 'Laundry' }));
-    expect(screen.getByText('Coming soon.')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Laundry' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: "Generate today's laundry loads" })).toBeInTheDocument();
   });
 });

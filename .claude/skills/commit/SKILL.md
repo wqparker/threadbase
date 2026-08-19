@@ -2,7 +2,7 @@
 name: commit
 allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git diff:*), Bash(git commit:*), Bash(git log:*)
 description: Stage all changes and commit
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 ## Current State/comm
