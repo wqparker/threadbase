@@ -1,3 +1,9 @@
+.item-detail-image {
+  max-width: 320px;
+  width: 100%;
+  display: block;
+}
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;

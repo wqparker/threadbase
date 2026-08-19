@@ -17,6 +17,8 @@ const item = { _id: 'item1', type: 'shirt', colourCategory: 'dark', closetId: 'c
 beforeEach(() => {
   closetService.getClosets.mockResolvedValue([closet]);
   itemService.getItems.mockResolvedValue([item]);
+  itemService.updateItem.mockResolvedValue(item);
+  itemService.deleteItem.mockResolvedValue(null);
 });
 
 describe('App navigation', () => {
@@ -44,6 +46,33 @@ describe('App navigation', () => {
 
     expect(await screen.findByRole('heading', { name: 'Clothes' })).toBeInTheDocument();
     expect(itemService.getItems).toHaveBeenCalledWith(undefined);
+  });
+
+  test('clicking an item card shows its detail screen with full info', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Clothes' }));
+    const itemButton = await screen.findByRole('button', { name: /dark shirt/i });
+    await user.click(itemButton);
+
+    expect(await screen.findByRole('heading', { name: /dark shirt/i })).toBeInTheDocument();
+    expect(screen.getByText('shirt')).toBeInTheDocument();
+  });
+
+  test('deleting an item from its detail screen returns to the origin view', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Clothes' }));
+    const itemButton = await screen.findByRole('button', { name: /dark shirt/i });
+    await user.click(itemButton);
+    await screen.findByRole('heading', { name: /dark shirt/i });
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(itemService.deleteItem).toHaveBeenCalledWith('item1');
+    expect(await screen.findByRole('heading', { name: 'Clothes' })).toBeInTheDocument();
   });
 
   test('Laundry nav link shows the laundry screen', async () => {

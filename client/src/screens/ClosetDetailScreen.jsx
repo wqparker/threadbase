@@ -4,7 +4,7 @@
 import { useActiveCloset } from '../hooks/useActiveCloset';
 import ItemList from '../components/ItemList';
 
-function ClosetDetailScreen() {
+function ClosetDetailScreen({ onNavigateToItemDetail }) {
   const { activeCloset } = useActiveCloset();
 
   if (!activeCloset) {
@@ -18,7 +18,7 @@ function ClosetDetailScreen() {
   return (
     <section id="closet-detail">
       <h1>{activeCloset.name}</h1>
-      <ItemList closetId={activeCloset._id} />
+      <ItemList closetId={activeCloset._id} onNavigateToItemDetail={onNavigateToItemDetail} />
     </section>
   );
 }
