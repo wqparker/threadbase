@@ -22,6 +22,7 @@ function toSidebarView(view) {
 function AppContent() {
   const [view, setView] = useState('closets');
   const [itemDetailOrigin, setItemDetailOrigin] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const { activeCloset } = useActiveCloset();
   const { effectiveTheme, toggleTheme } = useTheme();
 
@@ -52,11 +53,13 @@ function AppContent() {
     <>
       <TopBar
         title={titles[effectiveView] ?? ''}
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
         effectiveTheme={effectiveTheme}
         onToggleTheme={toggleTheme}
       />
       <div id="app-body">
-        <Sidebar currentView={sidebarView} onNavigate={setView} />
+        {sidebarOpen && <Sidebar currentView={sidebarView} onNavigate={setView} />}
         <main id="app-main">
           {view === 'closets' && (
             <ClosetsScreen onNavigateToClosetDetail={() => setView('closetDetail')} />

@@ -118,6 +118,19 @@ describe('App navigation', () => {
     expect(await screen.findByRole('heading', { name: 'Clothes' })).toBeInTheDocument();
   });
 
+  test('the hamburger button shows/hides the sidebar', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    expect(screen.getByRole('button', { name: 'Clothes' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Hide sidebar' }));
+    expect(screen.queryByRole('button', { name: 'Clothes' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Show sidebar' }));
+    expect(screen.getByRole('button', { name: 'Clothes' })).toBeInTheDocument();
+  });
+
   test('Laundry nav link shows the laundry screen', async () => {
     const user = userEvent.setup();
     render(<App />);

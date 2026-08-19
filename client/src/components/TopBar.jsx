@@ -1,18 +1,25 @@
 // client/src/components/TopBar.jsx
-// The green app-shell bar: a hamburger icon (static for now - not wired to
-// collapse the sidebar yet, that's a follow-up), a centered title for
-// whichever screen is active, and a light/dark theme toggle. App.jsx
-// computes `title` per view and owns theme state via useTheme().
+// The green app-shell bar: a hamburger icon that shows/hides the sidebar,
+// a centered title for whichever screen is active, and a light/dark theme
+// toggle. App.jsx computes `title` per view, owns sidebar-open state, and
+// owns theme state via useTheme().
 import HamburgerIcon from './icons/HamburgerIcon';
 import SunIcon from './icons/SunIcon';
 import MoonIcon from './icons/MoonIcon';
 
-function TopBar({ title, effectiveTheme, onToggleTheme }) {
+function TopBar({ title, sidebarOpen, onToggleSidebar, effectiveTheme, onToggleTheme }) {
   const isDark = effectiveTheme === 'dark';
 
   return (
     <header id="topbar">
-      <button type="button" id="topbar-toggle" className="topbar-icon-button" aria-label="Toggle sidebar">
+      <button
+        type="button"
+        id="topbar-toggle"
+        className="topbar-icon-button"
+        aria-label={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
+        aria-expanded={sidebarOpen}
+        onClick={onToggleSidebar}
+      >
         <HamburgerIcon />
       </button>
       <h1>{title}</h1>
