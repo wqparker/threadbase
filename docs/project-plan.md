@@ -150,6 +150,19 @@ Since a stated goal is practicing employer-relevant workflows with Claude Code:
 10. **Deploy** — Render (app) + Atlas (already in use) + R2 (already in use), all free tier
 11. **Stretch features** — barcode/UPC photo lookup; custom care-symbol classifier as a side project
 
+**Current focus (decided 2026-08-19):** Steps 6 and 7 are paused. Doing a
+dedicated desktop-first UI/visual polish pass instead — turning the rough
+placeholder styling built through step 5 into a presentable desktop UI
+(local machine only; mobile layout stays out of scope for now), before
+touching seed data or PWA installability. This is the "dedicated later
+step" for design polish referenced in §7's "rough styling only, no
+Figma-matching pass yet" scope decision — now being invoked. PWA-ify was
+briefly considered as the next step instead (see prior Open Items note,
+now superseded by this) but explicitly ruled out: it's build/installability
+tooling (manifest + service worker), unrelated to how the UI actually
+looks, which is not what's wanted right now. Revisit steps 6/7 once this
+pass is done.
+
 ---
 
 ## 9. Open Items
@@ -162,4 +175,4 @@ Since a stated goal is practicing employer-relevant workflows with Claude Code:
 - Whether frontend and backend run as one Render service or two
 - Timing of the presigned-URL upload upgrade
 - Any additional features not yet captured (there were more you mentioned wanting to circle back to)
-- Considering moving step 7 (PWA-ify) up to be next, ahead of step 6 (seed/fixture data) — not yet decided
+- ~~Considering moving step 7 (PWA-ify) up to be next~~ — decided against; see "Current focus" note under §8 instead (desktop UI polish pass, not PWA)
