@@ -36,9 +36,10 @@ function AppContent() {
   }
 
   // itemDetail is reachable from two origins (closetDetail or clothes), so
-  // it resolves to its origin's own sidebar view/title rather than a fixed
-  // one - the TopBar keeps showing "wherever you came from" while
-  // ItemDetailScreen shows its own item-specific heading below it.
+  // the sidebar resolves to its origin's own nav highlight rather than a
+  // fixed one. The TopBar title does not follow suit though - it's blank
+  // on item detail (see `title` below) rather than showing "wherever you
+  // came from", since ItemDetailScreen already shows its own heading.
   const effectiveView = view === 'itemDetail' ? itemDetailOrigin || 'clothes' : view;
   const sidebarView = toSidebarView(effectiveView);
 
@@ -48,11 +49,12 @@ function AppContent() {
     clothes: 'Clothes',
     laundry: 'Laundry',
   };
+  const title = view === 'itemDetail' ? '' : titles[view] ?? '';
 
   return (
     <>
       <TopBar
-        title={titles[effectiveView] ?? ''}
+        title={title}
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
         effectiveTheme={effectiveTheme}
