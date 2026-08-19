@@ -1,10 +1,8 @@
 // client/src/screens/ItemDetailScreen.jsx
 // Reached by clicking an item card in ItemList - shows every field for one
 // item, with Edit/Delete living only here (not on the grid cards). Edit
-// swaps every field's value in place (same dl layout, inputs/selects where
-// the text was) rather than switching to ItemForm - ItemForm only covers 5
-// fields and its stacked layout doesn't fit here, so this duplicates
-// those 5 inline and adds controls for the rest instead of reusing it.
+// swaps to ItemFieldsForm, the same field layout ItemList's "Add new" uses
+// for creation, so editing and creating look and behave identically.
 // Calls itemService directly rather than going through useItems/
 // useCrudResource: this screen isn't scoped to any one closet's list, and
 // the screens that list items fully unmount when navigating away, so
@@ -15,7 +13,7 @@ import { useActiveItem } from '../hooks/useActiveItem';
 import { useClosets } from '../hooks/useClosets';
 import { updateItem, deleteItem } from '../services/itemService';
 import { getItemDisplayName, getItemIcon } from '../utils/itemDisplay';
-import { ITEM_TYPES, COLOUR_CATEGORIES, WEAR_STATUSES, WASH_TEMPS, DRY_METHODS } from '../constants';
+import ItemFieldsForm from '../components/ItemFieldsForm';
 
 function toDateInputValue(date) {
   return date ? new Date(date).toISOString().slice(0, 10) : '';
@@ -33,10 +31,6 @@ function ItemDetailScreen({ onBack }) {
         <p>No item selected - go to Clothes or a closet and pick one.</p>
       </section>
     );
-  }
-
-  function handleChange(field, value) {
-    setEditValues((prev) => ({ ...prev, [field]: value }));
   }
 
   function startEditing() {
@@ -114,175 +108,14 @@ function ItemDetailScreen({ onBack }) {
       />
 
       {isEditing ? (
-        <form onSubmit={handleEditSubmit}>
-          <input
-            className="item-detail-title-input"
-            type="text"
-            placeholder="Nickname (optional)"
-            value={editValues.nickname}
-            onChange={(e) => handleChange('nickname', e.target.value)}
-          />
-          <dl>
-            <dt>Type</dt>
-            <dd>
-              <select value={editValues.type} onChange={(e) => handleChange('type', e.target.value)}>
-                {ITEM_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </dd>
-            <dt>Brand</dt>
-            <dd>
-              <input
-                type="text"
-                placeholder="Brand (optional)"
-                value={editValues.brand}
-                onChange={(e) => handleChange('brand', e.target.value)}
-              />
-            </dd>
-            <dt>Closet</dt>
-            <dd>
-              <select
-                value={editValues.closetId}
-                onChange={(e) => handleChange('closetId', e.target.value)}
-              >
-                <option value="">Unassigned</option>
-                {closets.map((c) => (
-                  <option key={c._id} value={c._id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </dd>
-            <dt>Colour category</dt>
-            <dd>
-              <select
-                value={editValues.colourCategory}
-                onChange={(e) => handleChange('colourCategory', e.target.value)}
-              >
-                {COLOUR_CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </dd>
-            <dt>Colour</dt>
-            <dd>
-              <input
-                type="text"
-                placeholder="Colour (optional)"
-                value={editValues.colour}
-                onChange={(e) => handleChange('colour', e.target.value)}
-              />
-            </dd>
-            <dt>Wear status</dt>
-            <dd>
-              <select
-                value={editValues.wearStatus}
-                onChange={(e) => handleChange('wearStatus', e.target.value)}
-              >
-                {WEAR_STATUSES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </dd>
-            <dt>Wear count</dt>
-            <dd>
-              <input
-                type="number"
-                min="0"
-                value={editValues.wearCount}
-                onChange={(e) => handleChange('wearCount', e.target.value)}
-              />
-            </dd>
-            <dt>Last worn</dt>
-            <dd>
-              <input
-                type="date"
-                value={editValues.lastWorn}
-                onChange={(e) => handleChange('lastWorn', e.target.value)}
-              />
-            </dd>
-            <dt>Last washed</dt>
-            <dd>
-              <input
-                type="date"
-                value={editValues.lastWashed}
-                onChange={(e) => handleChange('lastWashed', e.target.value)}
-              />
-            </dd>
-            <dt>Wash temp</dt>
-            <dd>
-              <select
-                value={editValues.washTemp}
-                onChange={(e) => handleChange('washTemp', e.target.value)}
-              >
-                <option value="">(not set)</option>
-                {WASH_TEMPS.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </dd>
-            <dt>Dry method</dt>
-            <dd>
-              <select
-                value={editValues.dryMethod}
-                onChange={(e) => handleChange('dryMethod', e.target.value)}
-              >
-                <option value="">(not set)</option>
-                {DRY_METHODS.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-              </select>
-            </dd>
-            <dt>Bleach OK</dt>
-            <dd>
-              <input
-                type="checkbox"
-                checked={editValues.bleachOk}
-                onChange={(e) => handleChange('bleachOk', e.target.checked)}
-              />
-            </dd>
-            <dt>Iron OK</dt>
-            <dd>
-              <input
-                type="checkbox"
-                checked={editValues.ironOk}
-                onChange={(e) => handleChange('ironOk', e.target.checked)}
-              />
-            </dd>
-            <dt>Delicate</dt>
-            <dd>
-              <input
-                type="checkbox"
-                checked={editValues.delicate}
-                onChange={(e) => handleChange('delicate', e.target.checked)}
-              />
-            </dd>
-            <dt>Photo URL</dt>
-            <dd>
-              <input
-                type="text"
-                placeholder="Photo URL (optional)"
-                value={editValues.photoUrl}
-                onChange={(e) => handleChange('photoUrl', e.target.value)}
-              />
-            </dd>
-          </dl>
-          <button type="submit">Save</button>
-          <button type="button" onClick={() => setIsEditing(false)}>
-            Cancel
-          </button>
-        </form>
+        <ItemFieldsForm
+          values={editValues}
+          onChange={setEditValues}
+          onSubmit={handleEditSubmit}
+          onCancel={() => setIsEditing(false)}
+          submitLabel="Save"
+          closets={closets}
+        />
       ) : (
         <>
           <h1>{displayName}</h1>

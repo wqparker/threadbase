@@ -4,13 +4,15 @@
 // regardless of closet. Either way, the form's own closet dropdown lets
 // the user assign/reassign/unassign independently of that scope.
 // Cards are read-only nav triggers - editing/deleting an item happens on
-// its detail screen, reached via onNavigateToItemDetail.
+// its detail screen, reached via onNavigateToItemDetail. Creating a new
+// item is behind an "Add new" toggle rather than an always-open form, and
+// uses the same ItemFieldsForm layout as that detail screen's Edit mode.
 import { useState } from 'react';
 import { useItems } from '../hooks/useItems';
 import { useClosets } from '../hooks/useClosets';
 import { useActiveItem } from '../hooks/useActiveItem';
 import { ITEM_TYPES, COLOUR_CATEGORIES } from '../constants';
-import ItemForm from './ItemForm';
+import ItemFieldsForm from './ItemFieldsForm';
 import ItemCard from './ItemCard';
 import AddExistingItems from './AddExistingItems';
 
@@ -21,6 +23,17 @@ function buildEmptyForm(closetId) {
     brand: '',
     nickname: '',
     closetId: closetId || '',
+    colour: '',
+    photoUrl: '',
+    wearStatus: 'clean',
+    wearCount: '0',
+    lastWorn: '',
+    lastWashed: '',
+    washTemp: '',
+    dryMethod: '',
+    bleachOk: false,
+    ironOk: true,
+    delicate: false,
   };
 }
 
@@ -28,15 +41,37 @@ function ItemList({ closetId, onNavigateToItemDetail }) {
   const { items, loading, error, addItem, editItem } = useItems(closetId);
   const { closets } = useClosets();
   const { setActiveItem } = useActiveItem();
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [formValues, setFormValues] = useState(() => buildEmptyForm(closetId));
   const [showExistingPicker, setShowExistingPicker] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    // '' (Unassigned) becomes undefined so the create payload omits
-    // closetId entirely, same as before the dropdown existed.
-    await addItem({ ...formValues, closetId: formValues.closetId || undefined });
-    setFormValues((prev) => ({ ...prev, brand: '', nickname: '' }));
+    // '' becomes undefined for optional fields so the create payload
+    // omits them entirely, letting the schema apply its own defaults.
+    await addItem({
+      type: formValues.type,
+      colourCategory: formValues.colourCategory,
+      brand: formValues.brand,
+      nickname: formValues.nickname,
+      closetId: formValues.closetId || undefined,
+      colour: formValues.colour,
+      photoUrl: formValues.photoUrl,
+      wearStatus: formValues.wearStatus,
+      wearCount: Number(formValues.wearCount),
+      lastWorn: formValues.lastWorn || undefined,
+      lastWashed: formValues.lastWashed || undefined,
+      careInstructions: {
+        washTemp: formValues.washTemp || undefined,
+        dryMethod: formValues.dryMethod || undefined,
+        bleachOk: formValues.bleachOk,
+        ironOk: formValues.ironOk,
+        delicate: formValues.delicate,
+        source: 'manual',
+      },
+    });
+    setFormValues(buildEmptyForm(closetId));
+    setShowCreateForm(false);
   }
 
   async function handleAddExisting(ids) {
@@ -50,13 +85,23 @@ function ItemList({ closetId, onNavigateToItemDetail }) {
 
   return (
     <>
-      <ItemForm
-        values={formValues}
-        onChange={setFormValues}
-        onSubmit={handleSubmit}
-        submitLabel="Create item"
-        closets={closets}
-      />
+      {showCreateForm ? (
+        <ItemFieldsForm
+          values={formValues}
+          onChange={setFormValues}
+          onSubmit={handleSubmit}
+          onCancel={() => {
+            setFormValues(buildEmptyForm(closetId));
+            setShowCreateForm(false);
+          }}
+          submitLabel="Create item"
+          closets={closets}
+        />
+      ) : (
+        <button type="button" onClick={() => setShowCreateForm(true)}>
+          Add new
+        </button>
+      )}
 
       {closetId &&
         (showExistingPicker ? (

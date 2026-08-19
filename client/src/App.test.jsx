@@ -25,6 +25,7 @@ beforeEach(() => {
   itemService.getItems.mockResolvedValue([item]);
   itemService.updateItem.mockResolvedValue(item);
   itemService.deleteItem.mockResolvedValue(null);
+  itemService.createItem.mockResolvedValue(item);
 });
 
 describe('App navigation', () => {
@@ -52,6 +53,18 @@ describe('App navigation', () => {
 
     expect(await screen.findByRole('heading', { name: 'Clothes' })).toBeInTheDocument();
     expect(itemService.getItems).toHaveBeenCalledWith(undefined);
+  });
+
+  test('adding a new item via "Add new" creates it and collapses the form back', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Clothes' }));
+    await user.click(screen.getByRole('button', { name: 'Add new' }));
+    await user.click(screen.getByRole('button', { name: 'Create item' }));
+
+    expect(itemService.createItem).toHaveBeenCalled();
+    expect(await screen.findByRole('button', { name: 'Add new' })).toBeInTheDocument();
   });
 
   test('clicking an item card shows its detail screen with full info', async () => {
