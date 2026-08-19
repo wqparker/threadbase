@@ -9,6 +9,7 @@ import LaundryScreen from './screens/LaundryScreen';
 import { ActiveClosetProvider } from './context/ActiveClosetProvider';
 import { ActiveItemProvider } from './context/ActiveItemProvider';
 import { useActiveCloset } from './hooks/useActiveCloset';
+import { useTheme } from './hooks/useTheme';
 import './App.css';
 
 // Collapses a detail view back onto its parent nav item so the sidebar
@@ -22,6 +23,7 @@ function AppContent() {
   const [view, setView] = useState('closets');
   const [itemDetailOrigin, setItemDetailOrigin] = useState(null);
   const { activeCloset } = useActiveCloset();
+  const { effectiveTheme, toggleTheme } = useTheme();
 
   function navigateToItemDetail() {
     setItemDetailOrigin(view);
@@ -48,7 +50,11 @@ function AppContent() {
 
   return (
     <>
-      <TopBar title={titles[effectiveView] ?? ''} />
+      <TopBar
+        title={titles[effectiveView] ?? ''}
+        effectiveTheme={effectiveTheme}
+        onToggleTheme={toggleTheme}
+      />
       <div id="app-body">
         <Sidebar currentView={sidebarView} onNavigate={setView} />
         <main id="app-main">

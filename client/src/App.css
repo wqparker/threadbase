@@ -19,8 +19,7 @@
   text-align: center;
 }
 
-#topbar-toggle {
-  grid-column: 1;
+.topbar-icon-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -33,8 +32,16 @@
   cursor: pointer;
 }
 
-#topbar-toggle:hover {
+.topbar-icon-button:hover {
   background: rgba(0, 0, 0, 0.08);
+}
+
+#topbar-toggle {
+  grid-column: 1;
+}
+
+#topbar-theme-toggle {
+  grid-column: 3;
 }
 
 #sidebar {

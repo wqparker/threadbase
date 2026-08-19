@@ -37,8 +37,15 @@
   }
 }
 
+/* Dark palette applies either when the OS/browser prefers dark and the
+   user hasn't explicitly forced light (the media-query block), or when
+   the user has explicitly forced dark via the theme toggle regardless of
+   OS preference (the attribute-selector block) - see useTheme.js, which
+   sets [data-theme] on <html>. The two blocks intentionally repeat the
+   same values rather than sharing them, since a plain selector can't
+   reuse a block written inside an @media rule. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --text: #9ca3af;
     --text-h: #f3f4f6;
     --bg: #16171d;
@@ -53,10 +60,22 @@
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
   }
+}
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+:root[data-theme='dark'] {
+  --text: #9ca3af;
+  --text-h: #f3f4f6;
+  --bg: #16171d;
+  --border: #2e303a;
+  --code-bg: #1f2028;
+  --accent: #c084fc;
+  --accent-bg: rgba(192, 132, 252, 0.15);
+  --accent-border: rgba(192, 132, 252, 0.5);
+  --social-bg: rgba(47, 48, 58, 0.5);
+  --green-light: #173d24;
+  --sidebar-hover-bg: rgba(255, 255, 255, 0.08);
+  --shadow:
+    rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 }
 
 body {
