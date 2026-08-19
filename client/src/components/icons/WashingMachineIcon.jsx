@@ -1,5 +1,5 @@
-// client/src/components/icons/FolderIcon.jsx
-function FolderIcon(props) {
+// client/src/components/icons/WashingMachineIcon.jsx
+function WashingMachineIcon(props) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -13,9 +13,10 @@ function FolderIcon(props) {
       aria-hidden="true"
       {...props}
     >
-      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="12" cy="13" r="6" />
     </svg>
   );
 }
 
-export default FolderIcon;
+export default WashingMachineIcon;

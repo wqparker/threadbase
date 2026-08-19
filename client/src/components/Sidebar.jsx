@@ -1,12 +1,12 @@
 // client/src/components/Sidebar.jsx
-import FolderIcon from './icons/FolderIcon';
+import ClosetIcon from './icons/ClosetIcon';
 import ListIcon from './icons/ListIcon';
-import MonitorIcon from './icons/MonitorIcon';
+import WashingMachineIcon from './icons/WashingMachineIcon';
 
 const VIEWS = [
-  { id: 'closets', label: 'Closets', Icon: FolderIcon },
+  { id: 'closets', label: 'Closets', Icon: ClosetIcon },
   { id: 'clothes', label: 'Clothes', Icon: ListIcon },
-  { id: 'laundry', label: 'Laundry', Icon: MonitorIcon },
+  { id: 'laundry', label: 'Laundry', Icon: WashingMachineIcon },
 ];
 
 function Sidebar({ currentView, onNavigate }) {
