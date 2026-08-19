@@ -200,6 +200,13 @@
 }
 
 button.item-card {
+  /* Buttons get their own UA-stylesheet default text colour
+     (color: buttontext), not the inherited var(--text) that a plain div
+     gets automatically - without this, the button variant of this card
+     (used by ItemList) can render invisible white-on-white text while the
+     div variant (LaundryScreen's static cards) looks fine, depending on
+     the OS/browser's own native rendering mode. */
+  color: var(--text);
   cursor: pointer;
 }
 
