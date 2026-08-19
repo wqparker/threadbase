@@ -8,6 +8,12 @@
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
+
+  /* App-shell greens, sampled from the Figma mockup - top bar / pale
+     sidebar+bottom-bar backgrounds. Estimates, tuned against the real
+     render rather than treated as final. */
+  --green: #22c55e;
+  --green-light: #d9f7df;
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
@@ -54,16 +60,29 @@ body {
   margin: 0;
 }
 
+/* App shell: a full-width column (TopBar, then a row of Sidebar + main
+   content) - replaces the Vite template's centered/bordered landing-page
+   layout, which conflicted with a real app shell. */
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
+  width: 100%;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+}
+
+#app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+#app-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  text-align: left;
+  background: var(--bg);
 }
 
 h1,
