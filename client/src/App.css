@@ -1,7 +1,36 @@
+#item-detail {
+  text-align: left;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
 .item-detail-image {
   max-width: 320px;
   width: 100%;
   display: block;
+  margin: 0 auto 16px;
+}
+
+#item-detail dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 16px;
+  row-gap: 10px;
+  margin: 16px 0;
+}
+
+#item-detail dt {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+#item-detail dd {
+  margin: 0;
+}
+
+#item-detail > button {
+  display: block;
+  margin-bottom: 16px;
 }
 
 .counter {
