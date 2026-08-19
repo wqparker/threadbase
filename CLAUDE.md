@@ -70,3 +70,5 @@ client/
 - Commit small, push often to the feature branch
 - Open a PR into main, squash-merge when done, delete the branch
 - No direct commits to main
+- Commit messages: author as William Parker only — do not add a
+  Co-Authored-By trailer for Claude
