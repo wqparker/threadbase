@@ -11,8 +11,6 @@ function LaundryScreen() {
 
   return (
     <section id="laundry">
-      <h1>Laundry</h1>
-
       <button type="button" onClick={generateLoads} disabled={loading}>
         {loading ? 'Generating...' : "Generate today's laundry loads"}
       </button>

@@ -1,8 +1,12 @@
 // client/src/components/Sidebar.jsx
+import FolderIcon from './icons/FolderIcon';
+import ListIcon from './icons/ListIcon';
+import MonitorIcon from './icons/MonitorIcon';
+
 const VIEWS = [
-  { id: 'closets', label: 'Closets' },
-  { id: 'clothes', label: 'Clothes' },
-  { id: 'laundry', label: 'Laundry' },
+  { id: 'closets', label: 'Closets', Icon: FolderIcon },
+  { id: 'clothes', label: 'Clothes', Icon: ListIcon },
+  { id: 'laundry', label: 'Laundry', Icon: MonitorIcon },
 ];
 
 function Sidebar({ currentView, onNavigate }) {
@@ -16,6 +20,7 @@ function Sidebar({ currentView, onNavigate }) {
               aria-current={currentView === view.id ? 'page' : undefined}
               onClick={() => onNavigate(view.id)}
             >
+              <view.Icon />
               {view.label}
             </button>
           </li>

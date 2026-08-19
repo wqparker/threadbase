@@ -17,7 +17,6 @@ function ClosetDetailScreen({ onNavigateToItemDetail }) {
 
   return (
     <section id="closet-detail">
-      <h1>{activeCloset.name}</h1>
       <ItemList closetId={activeCloset._id} onNavigateToItemDetail={onNavigateToItemDetail} />
     </section>
   );

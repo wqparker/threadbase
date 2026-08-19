@@ -39,8 +39,6 @@ function ClosetsScreen({ onNavigateToClosetDetail }) {
 
   return (
     <section id="closets">
-      <h1>Closets</h1>
-
       <ClosetForm values={formValues} onChange={setFormValues} onSubmit={handleSubmit} submitLabel="Add closet" />
 
       {loading && <p>Loading closets...</p>}
