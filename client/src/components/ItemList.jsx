@@ -15,6 +15,7 @@ import { ITEM_TYPES, COLOUR_CATEGORIES } from '../constants';
 import ItemFieldsForm from './ItemFieldsForm';
 import ItemCard from './ItemCard';
 import AddExistingItems from './AddExistingItems';
+import PlusIcon from './icons/PlusIcon';
 
 function buildEmptyForm(closetId) {
   return {
@@ -98,8 +99,11 @@ function ItemList({ closetId, onNavigateToItemDetail }) {
           closets={closets}
         />
       ) : (
-        <button type="button" onClick={() => setShowCreateForm(true)}>
-          Add new
+        <button type="button" id="add-item-button" onClick={() => setShowCreateForm(true)}>
+          <span className="add-item-circle">
+            <PlusIcon />
+          </span>
+          Add Item
         </button>
       )}
 
