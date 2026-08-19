@@ -176,3 +176,4 @@ pass is done.
 - Timing of the presigned-URL upload upgrade
 - Any additional features not yet captured (there were more you mentioned wanting to circle back to)
 - ~~Considering moving step 7 (PWA-ify) up to be next~~ — decided against; see "Current focus" note under §8 instead (desktop UI polish pass, not PWA)
+- Need proper icons for buttons/nav at some point — the current set (hamburger, closet, clothes list, washing machine, plus, sun/moon in `client/src/components/icons/`) is simple hand-drawn inline-SVG line art, built as placeholders during the desktop UI pass, not a finished icon design
