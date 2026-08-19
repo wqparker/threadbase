@@ -162,3 +162,4 @@ Since a stated goal is practicing employer-relevant workflows with Claude Code:
 - Whether frontend and backend run as one Render service or two
 - Timing of the presigned-URL upload upgrade
 - Any additional features not yet captured (there were more you mentioned wanting to circle back to)
+- Considering moving step 7 (PWA-ify) up to be next, ahead of step 6 (seed/fixture data) — not yet decided
