@@ -4,8 +4,8 @@
 // toggle. App.jsx computes `title` per view, owns sidebar-open state, and
 // owns theme state via useTheme().
 import HamburgerIcon from './icons/HamburgerIcon';
-import SunIcon from './icons/SunIcon';
-import MoonIcon from './icons/MoonIcon';
+import SunIcon from '../assets/itemIcons/Sun Icon.svg?react';
+import MoonIcon from '../assets/itemIcons/Moon Icon.svg?react';
 
 function TopBar({ title, sidebarOpen, onToggleSidebar, effectiveTheme, onToggleTheme }) {
   const isDark = effectiveTheme === 'dark';
