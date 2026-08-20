@@ -1,7 +1,7 @@
 // client/src/components/Sidebar.jsx
 import ClosetIcon from './icons/ClosetIcon';
 import ListIcon from './icons/ListIcon';
-import WashingMachineIcon from './icons/WashingMachineIcon';
+import WashingMachineIcon from '../assets/itemIcons/Washing Machine Icon.svg?react';
 
 const VIEWS = [
   { id: 'closets', label: 'Closets', Icon: ClosetIcon },

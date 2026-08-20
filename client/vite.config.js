@@ -13,9 +13,18 @@ export default defineConfig({
           plugins: [
             {
               name: 'preset-default',
-              // icons rely on the viewBox to scale when width/height are
-              // overridden via props — svgo's default preset strips it
-              params: { overrides: { removeViewBox: false } },
+              params: {
+                overrides: {
+                  // icons rely on the viewBox to scale when width/height
+                  // are overridden via props — svgo's default preset strips it
+                  removeViewBox: false,
+                  // an explicit fill/stroke of "#000" is the SVG spec
+                  // default, so svgo normally drops it as redundant — but
+                  // that removes it before replaceAttrValues below can
+                  // swap it for currentColor, leaving icons hard-black
+                  removeUnknownsAndDefaults: false,
+                },
+              },
             },
           ],
         },
