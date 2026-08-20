@@ -4,7 +4,7 @@ import { useClosets } from '../hooks/useClosets';
 import { useActiveCloset } from '../hooks/useActiveCloset';
 import ClosetForm from '../components/ClosetForm';
 import ClosetCard from '../components/ClosetCard';
-import PlusIcon from '../components/icons/PlusIcon';
+import AddableGrid from '../components/AddableGrid';
 
 const EMPTY_FORM = { name: '', description: '' };
 
@@ -32,37 +32,27 @@ function ClosetsScreen({ onNavigateToClosetDetail }) {
       {loading && <p>Loading closets...</p>}
       {error && <p>Error: {error}</p>}
 
-      <div className="item-grid">
-        {closets.map((closet) => (
+      <AddableGrid
+        items={closets}
+        renderItem={(closet) => (
           <ClosetCard key={closet._id} closet={closet} onClick={() => handleSelect(closet)} />
-        ))}
-
-        {showCreateForm ? (
-          <div className="item-grid-full-row">
-            <ClosetForm
-              values={formValues}
-              onChange={setFormValues}
-              onSubmit={handleSubmit}
-              onCancel={() => {
-                setFormValues(EMPTY_FORM);
-                setShowCreateForm(false);
-              }}
-              submitLabel="Add closet"
-            />
-          </div>
-        ) : (
-          <button
-            type="button"
-            className="item-card add-item-card"
-            onClick={() => setShowCreateForm(true)}
-          >
-            <span className="add-item-circle">
-              <PlusIcon />
-            </span>
-            Add closet
-          </button>
         )}
-      </div>
+        showForm={showCreateForm}
+        form={
+          <ClosetForm
+            values={formValues}
+            onChange={setFormValues}
+            onSubmit={handleSubmit}
+            onCancel={() => {
+              setFormValues(EMPTY_FORM);
+              setShowCreateForm(false);
+            }}
+            submitLabel="Add closet"
+          />
+        }
+        addLabel="Add closet"
+        onAddClick={() => setShowCreateForm(true)}
+      />
     </section>
   );
 }

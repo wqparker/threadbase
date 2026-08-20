@@ -1,11 +1,7 @@
 // client/src/hooks/useActiveCloset.js
-import { useContext } from 'react';
-import { ActiveClosetContext } from '../context/ActiveClosetContext';
+import { useActiveClosetEntity } from '../context/ActiveClosetProvider';
 
 export function useActiveCloset() {
-  const context = useContext(ActiveClosetContext);
-  if (!context) {
-    throw new Error('useActiveCloset must be used within an ActiveClosetProvider');
-  }
-  return context;
+  const { active, setActive } = useActiveClosetEntity();
+  return { activeCloset: active, setActiveCloset: setActive };
 }

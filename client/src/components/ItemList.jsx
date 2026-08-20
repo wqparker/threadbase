@@ -15,7 +15,7 @@ import { ITEM_TYPES, COLOUR_CATEGORIES } from '../constants';
 import ItemFieldsForm from './ItemFieldsForm';
 import ItemCard from './ItemCard';
 import AddExistingItems from './AddExistingItems';
-import PlusIcon from './icons/PlusIcon';
+import AddableGrid from './AddableGrid';
 
 function buildEmptyForm(closetId) {
   return {
@@ -102,38 +102,28 @@ function ItemList({ closetId, onNavigateToItemDetail }) {
       {loading && <p>Loading items...</p>}
       {error && <p>Error: {error}</p>}
 
-      <div className="item-grid">
-        {items.map((item) => (
+      <AddableGrid
+        items={items}
+        renderItem={(item) => (
           <ItemCard key={item._id} item={item} onClick={() => handleItemClick(item)} />
-        ))}
-
-        {showCreateForm ? (
-          <div className="item-grid-full-row">
-            <ItemFieldsForm
-              values={formValues}
-              onChange={setFormValues}
-              onSubmit={handleSubmit}
-              onCancel={() => {
-                setFormValues(buildEmptyForm(closetId));
-                setShowCreateForm(false);
-              }}
-              submitLabel="Create item"
-              closets={closets}
-            />
-          </div>
-        ) : (
-          <button
-            type="button"
-            className="item-card add-item-card"
-            onClick={() => setShowCreateForm(true)}
-          >
-            <span className="add-item-circle">
-              <PlusIcon />
-            </span>
-            Add Item
-          </button>
         )}
-      </div>
+        showForm={showCreateForm}
+        form={
+          <ItemFieldsForm
+            values={formValues}
+            onChange={setFormValues}
+            onSubmit={handleSubmit}
+            onCancel={() => {
+              setFormValues(buildEmptyForm(closetId));
+              setShowCreateForm(false);
+            }}
+            submitLabel="Create item"
+            closets={closets}
+          />
+        }
+        addLabel="Add Item"
+        onAddClick={() => setShowCreateForm(true)}
+      />
     </>
   );
 }
