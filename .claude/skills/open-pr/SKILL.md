@@ -16,5 +16,5 @@ Open a pull request for the current branch into `main`.
 - Refuse if the current branch is `main`.
 - Make sure the branch is pushed to origin first (push it if it isn't, or if there are unpushed commits).
 - Check `gh pr view --json state` for this branch first — if a PR is already open, don't create a duplicate; report its URL instead.
-- Write the PR title (under 70 chars) and a short body summarizing the commits shown above.
+- Write the PR title (under 70 chars) and a short body summarizing the commits shown above (under 350 characters).
 - This is the create-the-PR step only. Do not merge, squash, or delete the branch — that happens later, manually, once the PR has been reviewed.
