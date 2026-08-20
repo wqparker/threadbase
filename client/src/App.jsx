@@ -67,7 +67,10 @@ function AppContent() {
             <ClosetsScreen onNavigateToClosetDetail={() => setView('closetDetail')} />
           )}
           {view === 'closetDetail' && (
-            <ClosetDetailScreen onNavigateToItemDetail={navigateToItemDetail} />
+            <ClosetDetailScreen
+              onNavigateToItemDetail={navigateToItemDetail}
+              onBack={() => setView('closets')}
+            />
           )}
           {view === 'clothes' && <ClothesScreen onNavigateToItemDetail={navigateToItemDetail} />}
           {view === 'itemDetail' && <ItemDetailScreen onBack={navigateBackFromItemDetail} />}

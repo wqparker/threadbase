@@ -3,33 +3,23 @@ import { useState } from 'react';
 import { useClosets } from '../hooks/useClosets';
 import { useActiveCloset } from '../hooks/useActiveCloset';
 import ClosetForm from '../components/ClosetForm';
+import ClosetCard from '../components/ClosetCard';
+import PlusIcon from '../components/icons/PlusIcon';
 
 const EMPTY_FORM = { name: '', description: '' };
 
 function ClosetsScreen({ onNavigateToClosetDetail }) {
-  const { closets, loading, error, addCloset, editCloset, removeCloset } = useClosets();
+  const { closets, loading, error, addCloset } = useClosets();
   const { setActiveCloset } = useActiveCloset();
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [formValues, setFormValues] = useState(EMPTY_FORM);
-  const [editingId, setEditingId] = useState(null);
-  const [editValues, setEditValues] = useState(EMPTY_FORM);
 
   async function handleSubmit(e) {
     e.preventDefault();
     if (!formValues.name.trim()) return;
     await addCloset(formValues);
     setFormValues(EMPTY_FORM);
-  }
-
-  function startEditing(closet) {
-    setEditingId(closet._id);
-    setEditValues({ name: closet.name, description: closet.description || '' });
-  }
-
-  async function handleEditSubmit(e, id) {
-    e.preventDefault();
-    if (!editValues.name.trim()) return;
-    await editCloset(id, editValues);
-    setEditingId(null);
+    setShowCreateForm(false);
   }
 
   function handleSelect(closet) {
@@ -39,39 +29,40 @@ function ClosetsScreen({ onNavigateToClosetDetail }) {
 
   return (
     <section id="closets">
-      <ClosetForm values={formValues} onChange={setFormValues} onSubmit={handleSubmit} submitLabel="Add closet" />
-
       {loading && <p>Loading closets...</p>}
       {error && <p>Error: {error}</p>}
 
-      <ul>
-        {closets.map((closet) =>
-          editingId === closet._id ? (
-            <li key={closet._id}>
-              <ClosetForm
-                values={editValues}
-                onChange={setEditValues}
-                onSubmit={(e) => handleEditSubmit(e, closet._id)}
-                onCancel={() => setEditingId(null)}
-                submitLabel="Save"
-              />
-            </li>
-          ) : (
-            <li key={closet._id}>
-              <button type="button" onClick={() => handleSelect(closet)}>
-                <strong>{closet.name}</strong>
-                {closet.description && <span> — {closet.description}</span>}
-              </button>
-              <button type="button" onClick={() => startEditing(closet)}>
-                Edit
-              </button>
-              <button type="button" onClick={() => removeCloset(closet._id)}>
-                Delete
-              </button>
-            </li>
-          )
+      <div className="item-grid">
+        {closets.map((closet) => (
+          <ClosetCard key={closet._id} closet={closet} onClick={() => handleSelect(closet)} />
+        ))}
+
+        {showCreateForm ? (
+          <div className="item-grid-full-row">
+            <ClosetForm
+              values={formValues}
+              onChange={setFormValues}
+              onSubmit={handleSubmit}
+              onCancel={() => {
+                setFormValues(EMPTY_FORM);
+                setShowCreateForm(false);
+              }}
+              submitLabel="Add closet"
+            />
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="item-card add-item-card"
+            onClick={() => setShowCreateForm(true)}
+          >
+            <span className="add-item-circle">
+              <PlusIcon />
+            </span>
+            Add closet
+          </button>
         )}
-      </ul>
+      </div>
     </section>
   );
 }

@@ -119,7 +119,7 @@ function ItemDetailScreen({ onBack }) {
       ) : (
         <>
           <h1>{displayName}</h1>
-          <dl>
+          <dl className="field-list">
             <dt>Type</dt>
             <dd>{activeItem.type}</dd>
             <dt>Brand</dt>

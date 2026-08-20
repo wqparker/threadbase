@@ -16,13 +16,13 @@ function ItemFieldsForm({ values, onChange, onSubmit, onCancel, submitLabel, clo
   return (
     <form onSubmit={onSubmit}>
       <input
-        className="item-detail-title-input"
+        className="detail-title-input"
         type="text"
         placeholder="Nickname (optional)"
         value={values.nickname}
         onChange={(e) => handleChange('nickname', e.target.value)}
       />
-      <dl>
+      <dl className="field-list">
         <dt>Type</dt>
         <dd>
           <select value={values.type} onChange={(e) => handleChange('type', e.target.value)}>
