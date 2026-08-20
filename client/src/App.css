@@ -273,3 +273,27 @@ button.item-card:focus-visible {
   box-sizing: border-box;
 }
 
+.generate-loads-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 28px;
+  margin-bottom: 24px;
+  background: var(--green);
+  color: var(--text-h);
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.generate-loads-button:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.generate-loads-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+

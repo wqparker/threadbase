@@ -3,6 +3,7 @@ import { useItems } from '../hooks/useItems';
 import { useLaundryLoads } from '../hooks/useLaundryLoads';
 import { useActiveItem } from '../hooks/useActiveItem';
 import ItemCard from '../components/ItemCard';
+import LaundryWashIcon from '../assets/itemIcons/Laundry Wash Icon.svg?react';
 
 function LaundryScreen({ onNavigateToItemDetail }) {
   const { items, loading: itemsLoading, error: itemsError } = useItems();
@@ -18,7 +19,13 @@ function LaundryScreen({ onNavigateToItemDetail }) {
 
   return (
     <section id="laundry">
-      <button type="button" onClick={generateLoads} disabled={loading}>
+      <button
+        type="button"
+        className="generate-loads-button"
+        onClick={generateLoads}
+        disabled={loading}
+      >
+        <LaundryWashIcon width="28" height="28" />
         {loading ? 'Generating...' : "Generate today's laundry loads"}
       </button>
 
