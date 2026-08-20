@@ -74,7 +74,7 @@ function AppContent() {
           )}
           {view === 'clothes' && <ClothesScreen onNavigateToItemDetail={navigateToItemDetail} />}
           {view === 'itemDetail' && <ItemDetailScreen onBack={navigateBackFromItemDetail} />}
-          {view === 'laundry' && <LaundryScreen />}
+          {view === 'laundry' && <LaundryScreen onNavigateToItemDetail={navigateToItemDetail} />}
         </main>
       </div>
     </>
