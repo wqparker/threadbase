@@ -85,14 +85,11 @@
   box-shadow: var(--shadow);
 }
 
-#add-item-button {
+.add-item-card {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 8px;
-  background: none;
-  border: none;
-  padding: 0;
-  margin-bottom: 24px;
   color: var(--text-h);
   font-size: 14px;
   cursor: pointer;
@@ -113,6 +110,10 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 32px 24px;
+}
+
+.item-grid-full-row {
+  grid-column: 1 / -1;
 }
 
 /* The clothing icon PNGs (e.g. s-shirt.png) turn out not to actually be

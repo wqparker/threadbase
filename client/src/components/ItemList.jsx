@@ -86,27 +86,6 @@ function ItemList({ closetId, onNavigateToItemDetail }) {
 
   return (
     <>
-      {showCreateForm ? (
-        <ItemFieldsForm
-          values={formValues}
-          onChange={setFormValues}
-          onSubmit={handleSubmit}
-          onCancel={() => {
-            setFormValues(buildEmptyForm(closetId));
-            setShowCreateForm(false);
-          }}
-          submitLabel="Create item"
-          closets={closets}
-        />
-      ) : (
-        <button type="button" id="add-item-button" onClick={() => setShowCreateForm(true)}>
-          <span className="add-item-circle">
-            <PlusIcon />
-          </span>
-          Add Item
-        </button>
-      )}
-
       {closetId &&
         (showExistingPicker ? (
           <AddExistingItems
@@ -127,6 +106,33 @@ function ItemList({ closetId, onNavigateToItemDetail }) {
         {items.map((item) => (
           <ItemCard key={item._id} item={item} onClick={() => handleItemClick(item)} />
         ))}
+
+        {showCreateForm ? (
+          <div className="item-grid-full-row">
+            <ItemFieldsForm
+              values={formValues}
+              onChange={setFormValues}
+              onSubmit={handleSubmit}
+              onCancel={() => {
+                setFormValues(buildEmptyForm(closetId));
+                setShowCreateForm(false);
+              }}
+              submitLabel="Create item"
+              closets={closets}
+            />
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="item-card add-item-card"
+            onClick={() => setShowCreateForm(true)}
+          >
+            <span className="add-item-circle">
+              <PlusIcon />
+            </span>
+            Add Item
+          </button>
+        )}
       </div>
     </>
   );
