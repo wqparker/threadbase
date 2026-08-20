@@ -1,5 +1,5 @@
 // client/src/components/Sidebar.jsx
-import ClosetIcon from './icons/ClosetIcon';
+import ClosetIcon from '../assets/itemIcons/Closet Icon.svg?react';
 import ListIcon from './icons/ListIcon';
 import WashingMachineIcon from '../assets/itemIcons/Washing Machine Icon.svg?react';
 
