@@ -15,7 +15,7 @@ function ItemCard({ item, onClick }) {
         aria-label={`Wear status: ${wearStatus}`}
         title={wearStatus}
       />
-      <img src={item.photoUrl || getItemIcon()} alt={displayName} />
+      <img src={item.photoUrl || getItemIcon(item.type)} alt={displayName} />
       <p>{displayName}</p>
     </>
   );

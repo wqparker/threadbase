@@ -103,7 +103,7 @@ function ItemDetailScreen({ onBack }) {
 
       <img
         className="item-detail-image"
-        src={activeItem.photoUrl || getItemIcon()}
+        src={activeItem.photoUrl || getItemIcon(activeItem.type)}
         alt={displayName}
       />
 
