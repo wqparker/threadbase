@@ -273,6 +273,12 @@ button.item-card:focus-visible {
   box-sizing: border-box;
 }
 
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .generate-loads-button {
   display: inline-flex;
   align-items: center;

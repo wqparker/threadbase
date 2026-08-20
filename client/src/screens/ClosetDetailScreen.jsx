@@ -11,6 +11,8 @@ import { useActiveCloset } from '../hooks/useActiveCloset';
 import { updateCloset, deleteCloset } from '../services/closetService';
 import ItemList from '../components/ItemList';
 import ClosetForm from '../components/ClosetForm';
+import EditIcon from '../components/icons/EditIcon';
+import DeleteIcon from '../components/icons/DeleteIcon';
 
 function ClosetDetailScreen({ onNavigateToItemDetail, onBack }) {
   const { activeCloset, setActiveCloset } = useActiveCloset();
@@ -60,10 +62,12 @@ function ClosetDetailScreen({ onNavigateToItemDetail, onBack }) {
             <dt>Description</dt>
             <dd>{activeCloset.description || '—'}</dd>
           </dl>
-          <button type="button" onClick={startEditing}>
+          <button type="button" className="icon-button" onClick={startEditing}>
+            <EditIcon />
             Edit
           </button>
-          <button type="button" onClick={handleDelete}>
+          <button type="button" className="icon-button" onClick={handleDelete}>
+            <DeleteIcon />
             Delete
           </button>
         </>

@@ -14,6 +14,9 @@ import { useClosets } from '../hooks/useClosets';
 import { updateItem, deleteItem } from '../services/itemService';
 import { getItemDisplayName, getItemIcon } from '../utils/itemDisplay';
 import ItemFieldsForm from '../components/ItemFieldsForm';
+import BackIcon from '../components/icons/BackIcon';
+import EditIcon from '../components/icons/EditIcon';
+import DeleteIcon from '../components/icons/DeleteIcon';
 
 function toDateInputValue(date) {
   return date ? new Date(date).toISOString().slice(0, 10) : '';
@@ -97,7 +100,8 @@ function ItemDetailScreen({ onBack }) {
 
   return (
     <section id="item-detail">
-      <button type="button" onClick={onBack}>
+      <button type="button" className="icon-button" onClick={onBack}>
+        <BackIcon />
         Back
       </button>
 
@@ -151,10 +155,12 @@ function ItemDetailScreen({ onBack }) {
             <dt>Photo URL</dt>
             <dd>{activeItem.photoUrl || '—'}</dd>
           </dl>
-          <button type="button" onClick={startEditing}>
+          <button type="button" className="icon-button" onClick={startEditing}>
+            <EditIcon />
             Edit
           </button>
-          <button type="button" onClick={handleDelete}>
+          <button type="button" className="icon-button" onClick={handleDelete}>
+            <DeleteIcon />
             Delete
           </button>
         </>
