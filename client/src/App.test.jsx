@@ -55,16 +55,17 @@ describe('App navigation', () => {
     expect(itemService.getItems).toHaveBeenCalledWith(undefined);
   });
 
-  test('adding a new item via "Add new" creates it and collapses the form back', async () => {
+  test('adding a new item via "Add Item" creates it and returns to the origin view', async () => {
     const user = userEvent.setup();
     render(<App />);
 
     await user.click(screen.getByRole('button', { name: 'Clothes' }));
-    await user.click(screen.getByRole('button', { name: 'Add new' }));
+    await user.click(await screen.findByRole('button', { name: 'Add Item' }));
     await user.click(screen.getByRole('button', { name: 'Create item' }));
 
     expect(itemService.createItem).toHaveBeenCalled();
-    expect(await screen.findByRole('button', { name: 'Add new' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Clothes' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Add Item' })).toBeInTheDocument();
   });
 
   test('clicking an item card shows its detail screen with full info', async () => {
@@ -116,6 +117,19 @@ describe('App navigation', () => {
 
     expect(itemService.deleteItem).toHaveBeenCalledWith('item1');
     expect(await screen.findByRole('heading', { name: 'Clothes' })).toBeInTheDocument();
+  });
+
+  test('the hamburger button shows/hides the sidebar', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    expect(screen.getByRole('button', { name: 'Clothes' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Hide sidebar' }));
+    expect(screen.queryByRole('button', { name: 'Clothes' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Show sidebar' }));
+    expect(screen.getByRole('button', { name: 'Clothes' })).toBeInTheDocument();
   });
 
   test('Laundry nav link shows the laundry screen', async () => {

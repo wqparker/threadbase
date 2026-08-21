@@ -1,19 +1,31 @@
 // client/src/screens/LaundryScreen.jsx
 import { useItems } from '../hooks/useItems';
 import { useLaundryLoads } from '../hooks/useLaundryLoads';
+import { useActiveItem } from '../hooks/useActiveItem';
 import ItemCard from '../components/ItemCard';
+import LaundryWashIcon from '../assets/itemIcons/Laundry Wash Icon.svg?react';
 
-function LaundryScreen() {
+function LaundryScreen({ onNavigateToItemDetail }) {
   const { items, loading: itemsLoading, error: itemsError } = useItems();
   const { loads, loading, error, generateLoads } = useLaundryLoads();
+  const { setActiveItem } = useActiveItem();
 
   const dirtyItems = items.filter((item) => item.wearStatus === 'dirty');
 
+  function handleItemClick(item) {
+    setActiveItem(item);
+    onNavigateToItemDetail();
+  }
+
   return (
     <section id="laundry">
-      <h1>Laundry</h1>
-
-      <button type="button" onClick={generateLoads} disabled={loading}>
+      <button
+        type="button"
+        className="generate-loads-button"
+        onClick={generateLoads}
+        disabled={loading}
+      >
+        <LaundryWashIcon width="28" height="28" />
         {loading ? 'Generating...' : "Generate today's laundry loads"}
       </button>
 
@@ -25,7 +37,7 @@ function LaundryScreen() {
           <h2>{load.criteria}</h2>
           <div className="item-grid">
             {load.items.map((item) => (
-              <ItemCard key={item._id} item={item} />
+              <ItemCard key={item._id} item={item} onClick={() => handleItemClick(item)} />
             ))}
           </div>
         </div>
@@ -37,7 +49,7 @@ function LaundryScreen() {
       {!itemsLoading && !itemsError && dirtyItems.length === 0 && <p>Nothing dirty right now.</p>}
       <div className="item-grid">
         {dirtyItems.map((item) => (
-          <ItemCard key={item._id} item={item} />
+          <ItemCard key={item._id} item={item} onClick={() => handleItemClick(item)} />
         ))}
       </div>
     </section>

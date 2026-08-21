@@ -24,6 +24,8 @@ A digital closet where clothing items are logged with location, type, brand, and
 1. **Care-tag photo scanning** — photograph a wash tag, send to Claude's vision API, get back structured care-instruction JSON for the user to confirm/edit
 2. **Barcode/UPC lookup** — if an item has a barcode, query a UPC lookup API for a manufacturer stock photo (gated behind barcode presence; not a primary input path)
 3. **Custom-trained care-symbol classifier** — a parallel/ongoing ML side-project: fine-tune a model using the Roboflow "laundry-symbol-classification-oohtu" dataset and/or the Kaggle "Identification of Care Symbols Attached to Clothes" dataset as a seed, potentially replacing or supplementing the Claude vision call later. Treated as a learning track, not a blocker to shipping.
+4. **Colourblind-accessible wear-status badges** — small icon inside each badge (checkmark vs. droplet, etc.) in addition to colour, for red-green colourblindness (~8% of men)
+5. **Tap-to-cycle wear-status badge** — let the badge be tapped to manually cycle/override `wearStatus`, with the interaction still to be designed
 
 ---
 
@@ -167,8 +169,6 @@ pass is done.
 
 ## 9. Open Items
 
-- Whether the wear-status badge should be tappable to manually cycle/override, and what that interaction looks like
-- Colourblind-accessible icon treatment for the wear-status badges (deferred, not forgotten)
 - Sidebar nav-vs-action split (Search/Add Item currently live alongside Closets/Clothes/Laundry; deferred, not forgotten)
 - Mobile layout variant of the sidebar/grid
 - Add Item flow — not yet designed
@@ -176,3 +176,5 @@ pass is done.
 - Timing of the presigned-URL upload upgrade
 - Any additional features not yet captured (there were more you mentioned wanting to circle back to)
 - ~~Considering moving step 7 (PWA-ify) up to be next~~ — decided against; see "Current focus" note under §8 instead (desktop UI polish pass, not PWA)
+- ~~Tap-to-cycle wear-status badge / colourblind-accessible badge icons~~ — moved to Stretch Features (§2) as reach goals, not part of the current desktop UI pass
+- Need proper icons for buttons/nav at some point — the current set (hamburger, closet, clothes list, washing machine, plus, sun/moon in `client/src/components/icons/`) is simple hand-drawn inline-SVG line art, built as placeholders during the desktop UI pass, not a finished icon design

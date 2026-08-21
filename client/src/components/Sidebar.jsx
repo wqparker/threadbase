@@ -1,8 +1,12 @@
 // client/src/components/Sidebar.jsx
+import ClosetIcon from '../assets/itemIcons/Closet Icon.svg?react';
+import ListIcon from './icons/ListIcon';
+import WashingMachineIcon from '../assets/itemIcons/Washing Machine Icon.svg?react';
+
 const VIEWS = [
-  { id: 'closets', label: 'Closets' },
-  { id: 'clothes', label: 'Clothes' },
-  { id: 'laundry', label: 'Laundry' },
+  { id: 'closets', label: 'Closets', Icon: ClosetIcon },
+  { id: 'clothes', label: 'Clothes', Icon: ListIcon },
+  { id: 'laundry', label: 'Laundry', Icon: WashingMachineIcon },
 ];
 
 function Sidebar({ currentView, onNavigate }) {
@@ -16,6 +20,7 @@ function Sidebar({ currentView, onNavigate }) {
               aria-current={currentView === view.id ? 'page' : undefined}
               onClick={() => onNavigate(view.id)}
             >
+              <view.Icon />
               {view.label}
             </button>
           </li>

@@ -2,11 +2,13 @@
 // Global, unfiltered view of every item regardless of closet assignment.
 import ItemList from '../components/ItemList';
 
-function ClothesScreen({ onNavigateToItemDetail }) {
+function ClothesScreen({ onNavigateToItemDetail, onNavigateToItemCreate }) {
   return (
     <section id="clothes">
-      <h1>Clothes</h1>
-      <ItemList onNavigateToItemDetail={onNavigateToItemDetail} />
+      <ItemList
+        onNavigateToItemDetail={onNavigateToItemDetail}
+        onNavigateToItemCreate={onNavigateToItemCreate}
+      />
     </section>
   );
 }

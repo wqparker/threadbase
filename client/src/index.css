@@ -8,6 +8,19 @@
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
+
+  /* App-shell greens, sampled from the Figma mockup - top bar / pale
+     sidebar+bottom-bar backgrounds. Estimates, tuned against the real
+     render rather than treated as final. */
+  --green: #22c55e;
+  --green-light: #d9f7df;
+  --sidebar-hover-bg: rgba(255, 255, 255, 0.5);
+
+  /* wearStatus badge colours - constant across light/dark, not just
+     app-shell tokens. clean reuses --green rather than a near-duplicate. */
+  --wear-light: #eab308;
+  --wear-heavy: #f97316;
+  --wear-dirty: #ef4444;
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
@@ -30,8 +43,15 @@
   }
 }
 
+/* Dark palette applies either when the OS/browser prefers dark and the
+   user hasn't explicitly forced light (the media-query block), or when
+   the user has explicitly forced dark via the theme toggle regardless of
+   OS preference (the attribute-selector block) - see useTheme.js, which
+   sets [data-theme] on <html>. The two blocks intentionally repeat the
+   same values rather than sharing them, since a plain selector can't
+   reuse a block written inside an @media rule. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --text: #9ca3af;
     --text-h: #f3f4f6;
     --bg: #16171d;
@@ -41,29 +61,56 @@
     --accent-bg: rgba(192, 132, 252, 0.15);
     --accent-border: rgba(192, 132, 252, 0.5);
     --social-bg: rgba(47, 48, 58, 0.5);
+    --green-light: #173d24;
+    --sidebar-hover-bg: rgba(255, 255, 255, 0.08);
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
   }
+}
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+:root[data-theme='dark'] {
+  --text: #9ca3af;
+  --text-h: #f3f4f6;
+  --bg: #16171d;
+  --border: #2e303a;
+  --code-bg: #1f2028;
+  --accent: #c084fc;
+  --accent-bg: rgba(192, 132, 252, 0.15);
+  --accent-border: rgba(192, 132, 252, 0.5);
+  --social-bg: rgba(47, 48, 58, 0.5);
+  --green-light: #173d24;
+  --sidebar-hover-bg: rgba(255, 255, 255, 0.08);
+  --shadow:
+    rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 }
 
 body {
   margin: 0;
 }
 
+/* App shell: a full-width column (TopBar, then a row of Sidebar + main
+   content) - replaces the Vite template's centered/bordered landing-page
+   layout, which conflicted with a real app shell. */
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
+  width: 100%;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+}
+
+#app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+#app-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  text-align: left;
+  background: var(--bg);
 }
 
 h1,

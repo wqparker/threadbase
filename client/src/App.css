@@ -1,6 +1,227 @@
-#item-detail {
+#topbar {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  gap: 16px;
+  height: 64px;
+  padding: 0 20px;
+  background: var(--green);
+  color: var(--text-h);
+  flex-shrink: 0;
+}
+
+#topbar h1 {
+  grid-column: 2;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-align: center;
+}
+
+.topbar-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.topbar-icon-button:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+#topbar-toggle {
+  grid-column: 1;
+}
+
+#topbar-theme-toggle {
+  grid-column: 3;
+}
+
+#sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  padding: 24px 12px;
+  background: var(--green-light);
+}
+
+#sidebar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#sidebar button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  color: var(--text-h);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+#sidebar button:hover {
+  background: var(--sidebar-hover-bg);
+}
+
+#sidebar button[aria-current='page'] {
+  background: var(--bg);
+  box-shadow: var(--shadow);
+}
+
+.add-item-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-h);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.add-item-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border: 2px solid var(--text-h);
+  border-radius: 999px;
+}
+
+.item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 32px 24px;
+}
+
+/* The clothing icon PNGs (e.g. s-shirt.png) turn out not to actually be
+   transparent - they're black line art on an opaque white background, so
+   in dark mode they show as a jarring white box on the dark card. Invert
+   (white bg -> black, black lines -> white) then screen-blend against the
+   card background: screen makes the now-black background pixels resolve
+   to exactly the card's colour (invisible), while the now-white line
+   pixels stay white and visible. Same media-query/attribute dual pattern
+   as the [data-theme] tokens in index.css. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .item-card img {
+    filter: invert(1);
+    mix-blend-mode: screen;
+  }
+}
+
+:root[data-theme='dark'] .item-card img {
+  filter: invert(1);
+  mix-blend-mode: screen;
+}
+
+.item-card {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 16px;
+  background: var(--bg);
+  border: 2px solid var(--text-h);
+  border-radius: 16px;
+}
+
+.item-card img {
+  max-width: 65%;
+  max-height: 65%;
+  object-fit: contain;
+}
+
+.item-card > svg {
+  width: 65%;
+  height: 65%;
+}
+
+.wear-status-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.wear-status-clean {
+  background: var(--green);
+}
+
+.wear-status-light {
+  background: var(--wear-light);
+}
+
+.wear-status-heavy {
+  background: var(--wear-heavy);
+}
+
+.wear-status-dirty {
+  background: var(--wear-dirty);
+}
+
+.item-card p {
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 90%;
+  margin: 0;
+  padding: 4px 14px;
+  box-sizing: border-box;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+button.item-card {
+  /* Buttons get their own UA-stylesheet default text colour
+     (color: buttontext), not the inherited var(--text) that a plain div
+     gets automatically - without this, the button variant of this card
+     (used by ItemList) can render invisible white-on-white text while the
+     div variant (LaundryScreen's static cards) looks fine, depending on
+     the OS/browser's own native rendering mode. */
+  color: var(--text);
+  cursor: pointer;
+}
+
+button.item-card:hover,
+button.item-card:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+
+#item-detail,
+#closet-detail {
   text-align: left;
-  max-width: 480px;
+  max-width: 680px;
   margin: 0 auto;
 }
 
@@ -11,29 +232,30 @@
   margin: 0 auto 16px;
 }
 
-#item-detail dl {
+.field-list {
   display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: 16px;
+  grid-template-columns: repeat(2, auto 1fr);
+  column-gap: 24px;
   row-gap: 10px;
   margin: 16px 0;
 }
 
-#item-detail dt {
+.field-list dt {
   font-weight: 600;
   color: var(--text-h);
 }
 
-#item-detail dd {
+.field-list dd {
   margin: 0;
 }
 
-#item-detail > button {
+#item-detail > button,
+#closet-detail > button {
   display: block;
   margin-bottom: 16px;
 }
 
-.item-detail-title-input {
+.detail-title-input {
   font-family: var(--heading);
   font-size: 32px;
   font-weight: 500;
@@ -47,187 +269,33 @@
   box-sizing: border-box;
 }
 
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.generate-loads-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 28px;
   margin-bottom: 24px;
-
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+  background: var(--green);
+  color: var(--text-h);
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
+.generate-loads-button:hover:not(:disabled) {
+  filter: brightness(1.05);
 }
 
-#center {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+.generate-loads-button:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
-}
-
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
-
-.ticks {
-  position: relative;
-  width: 100%;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
-
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
-}
