@@ -6,7 +6,7 @@ disable-model-invocation: true
 ---
 
 ## Current State
-- Branch: !`git branch O-show-current`
+- Branch: !`git branch --show-current`
 - Status: !`git status`
 - Commits ahead of main: !`git log main..HEAD --oneline`
 
