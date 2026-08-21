@@ -3,6 +3,7 @@ const express = require('express');
 const multer = require('multer');
 const Item = require('../models/Item');
 const { uploadPhoto, deletePhotoIfOwned } = require('../services/r2Service');
+const { removeBackground } = require('../services/bgRemovalService');
 
 const router = express.Router();
 
@@ -19,6 +20,24 @@ const upload = multer({
 // photo) are used directly, unchanged.
 function parseBody(req) {
   return req.body.data ? JSON.parse(req.body.data) : req.body;
+}
+
+// Background removal takes ~40s on CPU (see bg-removal-service/README.md),
+// far too long to block the upload request on. The route saves the
+// original photo immediately and returns; this runs afterward and swaps
+// the processed cutout in when it's ready. Failures here just leave the
+// original (already-saved, already-visible) photo in place - this is an
+// enhancement, not a requirement for the item to exist.
+async function processPhotoInBackground(itemId, originalBuffer, originalMimetype, originalPhotoUrl) {
+  try {
+    const processedBuffer = await removeBackground(originalBuffer, originalMimetype);
+    const processedUrl = await uploadPhoto(processedBuffer, 'image/png');
+    await Item.findByIdAndUpdate(itemId, { photoUrl: processedUrl, photoProcessing: false });
+    await deletePhotoIfOwned(originalPhotoUrl);
+  } catch (err) {
+    console.error('Background removal failed, keeping original photo:', err.message);
+    await Item.findByIdAndUpdate(itemId, { photoProcessing: false }).catch(() => {});
+  }
 }
 
 router.get('/', async (req, res) => {
@@ -38,9 +57,13 @@ router.post('/', upload.single('photo'), async (req, res) => {
   const data = parseBody(req);
   if (req.file) {
     data.photoUrl = await uploadPhoto(req.file.buffer, req.file.mimetype);
+    data.photoProcessing = true;
   }
   const item = await Item.create(data);
   res.status(201).json(item);
+  if (req.file) {
+    processPhotoInBackground(item._id, req.file.buffer, req.file.mimetype, item.photoUrl);
+  }
 });
 
 router.put('/:id', upload.single('photo'), async (req, res) => {
@@ -50,6 +73,7 @@ router.put('/:id', upload.single('photo'), async (req, res) => {
 
   if (req.file) {
     data.photoUrl = await uploadPhoto(req.file.buffer, req.file.mimetype);
+    data.photoProcessing = true;
   }
 
   if ('photoUrl' in data && existing.photoUrl && existing.photoUrl !== data.photoUrl) {
@@ -62,6 +86,9 @@ router.put('/:id', upload.single('photo'), async (req, res) => {
   });
   if (!item) return res.status(404).json({ error: 'Item not found' });
   res.json(item);
+  if (req.file) {
+    processPhotoInBackground(item._id, req.file.buffer, req.file.mimetype, item.photoUrl);
+  }
 });
 
 router.delete('/:id', async (req, res) => {
@@ -70,5 +97,7 @@ router.delete('/:id', async (req, res) => {
   await deletePhotoIfOwned(item.photoUrl);
   res.status(204).send();
 });
+
+router.processPhotoInBackground = processPhotoInBackground;
 
 module.exports = router;

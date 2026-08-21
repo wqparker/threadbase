@@ -1,16 +1,20 @@
 // server/tests/items.photo.test.js
-// Covers the photo upload/cleanup behavior added to the items routes.
-// Mocks r2Service so these tests never hit real R2.
+// Covers the photo upload/background-removal/cleanup behavior added to
+// the items routes. Mocks r2Service and bgRemovalService so these tests
+// never hit real R2 or the Python service.
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 const request = require('supertest');
 const mongoose = require('mongoose');
 const app = require('../app');
+const itemsRouter = require('../routes/items');
 const Item = require('../models/Item');
 
 jest.mock('../services/r2Service');
+jest.mock('../services/bgRemovalService');
 const { uploadPhoto, deletePhotoIfOwned } = require('../services/r2Service');
+const { removeBackground } = require('../services/bgRemovalService');
 
 beforeAll(async () => {
   await mongoose.connect(process.env.MONGO_URI, { dbName: 'threadbase-test' });
@@ -27,14 +31,19 @@ describe('item photo upload/cleanup', () => {
     itemIds = [];
     uploadPhoto.mockReset();
     deletePhotoIfOwned.mockReset();
+    removeBackground.mockReset();
+    // Harmless default so routes' own fire-and-forget background call
+    // (triggered for real on every photo upload, even in these tests)
+    // doesn't error/log noise when a test isn't specifically checking it.
+    removeBackground.mockResolvedValue(Buffer.from('processed-bytes'));
   });
 
   afterEach(async () => {
     await Promise.all(itemIds.map((id) => Item.findByIdAndDelete(id)));
   });
 
-  test('POST /api/items with a photo uploads it and stores the returned URL', async () => {
-    uploadPhoto.mockResolvedValue('https://example.com/items/new-photo.jpg');
+  test('POST /api/items with a photo saves the original immediately and marks it processing', async () => {
+    uploadPhoto.mockResolvedValue('https://example.com/items/original.jpg');
 
     const res = await request(app)
       .post('/api/items')
@@ -44,17 +53,18 @@ describe('item photo upload/cleanup', () => {
 
     expect(res.status).toBe(201);
     expect(uploadPhoto).toHaveBeenCalledWith(expect.any(Buffer), 'image/jpeg');
-    expect(res.body.photoUrl).toBe('https://example.com/items/new-photo.jpg');
+    expect(res.body.photoUrl).toBe('https://example.com/items/original.jpg');
+    expect(res.body.photoProcessing).toBe(true);
   });
 
-  test('PUT /api/items/:id with a new photo replaces it and deletes the old one', async () => {
+  test('PUT /api/items/:id with a new photo saves the original immediately, marks it processing, and deletes the previous photo', async () => {
     const item = await Item.create({
       type: 'other',
       colourCategory: 'mixed',
       photoUrl: 'https://example.com/items/old-photo.jpg',
     });
     itemIds.push(item._id.toString());
-    uploadPhoto.mockResolvedValue('https://example.com/items/new-photo.jpg');
+    uploadPhoto.mockResolvedValue('https://example.com/items/new-original.jpg');
 
     const res = await request(app)
       .put(`/api/items/${item._id}`)
@@ -62,7 +72,8 @@ describe('item photo upload/cleanup', () => {
       .attach('photo', Buffer.from('fake-image-data'), 'test.jpg');
 
     expect(res.status).toBe(200);
-    expect(res.body.photoUrl).toBe('https://example.com/items/new-photo.jpg');
+    expect(res.body.photoUrl).toBe('https://example.com/items/new-original.jpg');
+    expect(res.body.photoProcessing).toBe(true);
     expect(deletePhotoIfOwned).toHaveBeenCalledWith('https://example.com/items/old-photo.jpg');
   });
 
@@ -91,5 +102,53 @@ describe('item photo upload/cleanup', () => {
 
     expect(res.status).toBe(204);
     expect(deletePhotoIfOwned).toHaveBeenCalledWith('https://example.com/items/to-delete.jpg');
+  });
+
+  test('processPhotoInBackground swaps in the processed photo and cleans up the original', async () => {
+    const item = await Item.create({
+      type: 'other',
+      colourCategory: 'mixed',
+      photoUrl: 'https://example.com/items/original.jpg',
+      photoProcessing: true,
+    });
+    itemIds.push(item._id.toString());
+
+    removeBackground.mockResolvedValue(Buffer.from('processed-bytes'));
+    uploadPhoto.mockResolvedValue('https://example.com/items/processed.jpg');
+
+    await itemsRouter.processPhotoInBackground(
+      item._id,
+      Buffer.from('original-bytes'),
+      'image/jpeg',
+      item.photoUrl
+    );
+
+    const updated = await Item.findById(item._id);
+    expect(updated.photoUrl).toBe('https://example.com/items/processed.jpg');
+    expect(updated.photoProcessing).toBe(false);
+    expect(deletePhotoIfOwned).toHaveBeenCalledWith('https://example.com/items/original.jpg');
+  });
+
+  test('processPhotoInBackground falls back to the original photo if removal fails', async () => {
+    const item = await Item.create({
+      type: 'other',
+      colourCategory: 'mixed',
+      photoUrl: 'https://example.com/items/original.jpg',
+      photoProcessing: true,
+    });
+    itemIds.push(item._id.toString());
+
+    removeBackground.mockRejectedValue(new Error('service unreachable'));
+
+    await itemsRouter.processPhotoInBackground(
+      item._id,
+      Buffer.from('original-bytes'),
+      'image/jpeg',
+      item.photoUrl
+    );
+
+    const updated = await Item.findById(item._id);
+    expect(updated.photoUrl).toBe('https://example.com/items/original.jpg');
+    expect(updated.photoProcessing).toBe(false);
   });
 });

@@ -38,6 +38,13 @@ const itemSchema = new mongoose.Schema({
   photoUrl: {
     type: String,
   },
+  // True while a background-removal job is in flight for the current
+  // photoUrl - lets the client know whether to poll for the cutout
+  // swapping in. Set back to false whether that job succeeds or fails.
+  photoProcessing: {
+    type: Boolean,
+    default: false,
+  },
   careInstructions: {
     type: careInstructionsSchema,
     default: () => ({}),

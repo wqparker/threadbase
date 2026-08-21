@@ -8,10 +8,10 @@
 // the screens that list items fully unmount when navigating away, so
 // their own lists refetch fresh on return - there's no cache here to keep
 // in sync.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useActiveItem } from '../hooks/useActiveItem';
 import { useClosets } from '../hooks/useClosets';
-import { updateItem, deleteItem } from '../services/itemService';
+import { getItem, updateItem, deleteItem } from '../services/itemService';
 import { getItemDisplayName, getItemIcon } from '../utils/itemDisplay';
 import ItemFieldsForm from '../components/ItemFieldsForm';
 import BackIcon from '../components/icons/BackIcon';
@@ -27,6 +27,17 @@ function ItemDetailScreen({ onBack }) {
   const { closets } = useClosets();
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState(null);
+
+  // Background removal takes ~40s (see bg-removal-service/README.md) and
+  // never blocks the save - poll until the cutout swaps in, then stop.
+  useEffect(() => {
+    if (!activeItem?.photoProcessing) return undefined;
+    const interval = setInterval(async () => {
+      const updated = await getItem(activeItem._id);
+      setActiveItem(updated);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [activeItem?._id, activeItem?.photoProcessing, setActiveItem]);
 
   if (!activeItem) {
     return (
@@ -128,6 +139,7 @@ function ItemDetailScreen({ onBack }) {
             src={activeItem.photoUrl || getItemIcon(activeItem.type)}
             alt={displayName}
           />
+          {activeItem.photoProcessing && <p>Processing photo...</p>}
           <h1>{displayName}</h1>
           <dl className="field-list">
             <dt>Type</dt>
