@@ -16,7 +16,11 @@ function ItemCard({ item, onClick }) {
         aria-label={`Wear status: ${wearStatus}`}
         title={wearStatus}
       />
-      <img src={item.photoUrl || getItemIcon(item.type)} alt={displayName} />
+      <img
+        className={item.photoUrl ? undefined : 'item-icon-fallback'}
+        src={item.photoUrl || getItemIcon(item.type)}
+        alt={displayName}
+      />
       <p>{displayName}</p>
     </Card>
   );

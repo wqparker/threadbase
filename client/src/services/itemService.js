@@ -10,12 +10,20 @@ export function getItem(id) {
   return request(`/api/items/${id}`);
 }
 
-export function createItem(data) {
-  return request('/api/items', { method: 'POST', body: JSON.stringify(data) });
+function toRequestBody(data, photoFile) {
+  if (!photoFile) return JSON.stringify(data);
+  const formData = new FormData();
+  formData.append('data', JSON.stringify(data));
+  formData.append('photo', photoFile);
+  return formData;
 }
 
-export function updateItem(id, data) {
-  return request(`/api/items/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+export function createItem(data, photoFile) {
+  return request('/api/items', { method: 'POST', body: toRequestBody(data, photoFile) });
+}
+
+export function updateItem(id, data, photoFile) {
+  return request(`/api/items/${id}`, { method: 'PUT', body: toRequestBody(data, photoFile) });
 }
 
 export function deleteItem(id) {

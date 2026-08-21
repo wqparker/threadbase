@@ -10,7 +10,6 @@
 import { useState } from 'react';
 import { useClosets } from '../hooks/useClosets';
 import { createItem } from '../services/itemService';
-import { getItemIcon } from '../utils/itemDisplay';
 import { ITEM_TYPES, COLOUR_CATEGORIES } from '../constants';
 import ItemFieldsForm from '../components/ItemFieldsForm';
 import BackIcon from '../components/icons/BackIcon';
@@ -24,6 +23,7 @@ function buildEmptyForm(closetId) {
     closetId: closetId || '',
     colour: '',
     photoUrl: '',
+    photoFile: null,
     wearStatus: 'clean',
     wearCount: '0',
     lastWorn: '',
@@ -44,27 +44,32 @@ function ItemCreateScreen({ closetId, onBack }) {
     e.preventDefault();
     // '' becomes undefined for optional fields so the create payload
     // omits them entirely, letting the schema apply its own defaults.
-    await createItem({
-      type: formValues.type,
-      colourCategory: formValues.colourCategory,
-      brand: formValues.brand,
-      nickname: formValues.nickname,
-      closetId: formValues.closetId || undefined,
-      colour: formValues.colour,
-      photoUrl: formValues.photoUrl,
-      wearStatus: formValues.wearStatus,
-      wearCount: Number(formValues.wearCount),
-      lastWorn: formValues.lastWorn || undefined,
-      lastWashed: formValues.lastWashed || undefined,
-      careInstructions: {
-        washTemp: formValues.washTemp || undefined,
-        dryMethod: formValues.dryMethod || undefined,
-        bleachOk: formValues.bleachOk,
-        ironOk: formValues.ironOk,
-        delicate: formValues.delicate,
-        source: 'manual',
+    // photoFile isn't JSON-serializable and travels as its own request
+    // part instead - see createItem/toRequestBody in itemService.
+    await createItem(
+      {
+        type: formValues.type,
+        colourCategory: formValues.colourCategory,
+        brand: formValues.brand,
+        nickname: formValues.nickname,
+        closetId: formValues.closetId || undefined,
+        colour: formValues.colour,
+        photoUrl: formValues.photoUrl,
+        wearStatus: formValues.wearStatus,
+        wearCount: Number(formValues.wearCount),
+        lastWorn: formValues.lastWorn || undefined,
+        lastWashed: formValues.lastWashed || undefined,
+        careInstructions: {
+          washTemp: formValues.washTemp || undefined,
+          dryMethod: formValues.dryMethod || undefined,
+          bleachOk: formValues.bleachOk,
+          ironOk: formValues.ironOk,
+          delicate: formValues.delicate,
+          source: 'manual',
+        },
       },
-    });
+      formValues.photoFile
+    );
     onBack();
   }
 
@@ -74,12 +79,6 @@ function ItemCreateScreen({ closetId, onBack }) {
         <BackIcon />
         Back
       </button>
-
-      <img
-        className="item-detail-image"
-        src={formValues.photoUrl || getItemIcon(formValues.type)}
-        alt="New item"
-      />
 
       <ItemFieldsForm
         values={formValues}

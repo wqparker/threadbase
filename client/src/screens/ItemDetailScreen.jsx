@@ -46,6 +46,7 @@ function ItemDetailScreen({ onBack }) {
       closetId: activeItem.closetId || '',
       colour: activeItem.colour || '',
       photoUrl: activeItem.photoUrl || '',
+      photoFile: null,
       wearStatus: activeItem.wearStatus || 'clean',
       wearCount: String(activeItem.wearCount ?? 0),
       lastWorn: toDateInputValue(activeItem.lastWorn),
@@ -63,27 +64,33 @@ function ItemDetailScreen({ onBack }) {
     e.preventDefault();
     // '' becomes null/undefined for optional fields so the update clears
     // them explicitly rather than leaving stale values in place.
-    const updated = await updateItem(activeItem._id, {
-      type: editValues.type,
-      colourCategory: editValues.colourCategory,
-      brand: editValues.brand,
-      nickname: editValues.nickname,
-      closetId: editValues.closetId || null,
-      colour: editValues.colour,
-      photoUrl: editValues.photoUrl,
-      wearStatus: editValues.wearStatus,
-      wearCount: Number(editValues.wearCount),
-      lastWorn: editValues.lastWorn || null,
-      lastWashed: editValues.lastWashed || null,
-      careInstructions: {
-        washTemp: editValues.washTemp || undefined,
-        dryMethod: editValues.dryMethod || undefined,
-        bleachOk: editValues.bleachOk,
-        ironOk: editValues.ironOk,
-        delicate: editValues.delicate,
-        source: 'manual',
+    // photoFile isn't JSON-serializable and travels as its own request
+    // part instead - see updateItem/toRequestBody in itemService.
+    const updated = await updateItem(
+      activeItem._id,
+      {
+        type: editValues.type,
+        colourCategory: editValues.colourCategory,
+        brand: editValues.brand,
+        nickname: editValues.nickname,
+        closetId: editValues.closetId || null,
+        colour: editValues.colour,
+        photoUrl: editValues.photoUrl,
+        wearStatus: editValues.wearStatus,
+        wearCount: Number(editValues.wearCount),
+        lastWorn: editValues.lastWorn || null,
+        lastWashed: editValues.lastWashed || null,
+        careInstructions: {
+          washTemp: editValues.washTemp || undefined,
+          dryMethod: editValues.dryMethod || undefined,
+          bleachOk: editValues.bleachOk,
+          ironOk: editValues.ironOk,
+          delicate: editValues.delicate,
+          source: 'manual',
+        },
       },
-    });
+      editValues.photoFile
+    );
     setActiveItem(updated);
     setIsEditing(false);
   }
@@ -105,12 +112,6 @@ function ItemDetailScreen({ onBack }) {
         Back
       </button>
 
-      <img
-        className="item-detail-image"
-        src={activeItem.photoUrl || getItemIcon(activeItem.type)}
-        alt={displayName}
-      />
-
       {isEditing ? (
         <ItemFieldsForm
           values={editValues}
@@ -122,6 +123,11 @@ function ItemDetailScreen({ onBack }) {
         />
       ) : (
         <>
+          <img
+            className={`item-detail-image${activeItem.photoUrl ? '' : ' item-icon-fallback'}`}
+            src={activeItem.photoUrl || getItemIcon(activeItem.type)}
+            alt={displayName}
+          />
           <h1>{displayName}</h1>
           <dl className="field-list">
             <dt>Type</dt>
@@ -152,8 +158,6 @@ function ItemDetailScreen({ onBack }) {
             <dd>{care.ironOk ? 'Yes' : 'No'}</dd>
             <dt>Delicate</dt>
             <dd>{care.delicate ? 'Yes' : 'No'}</dd>
-            <dt>Photo URL</dt>
-            <dd>{activeItem.photoUrl || '—'}</dd>
           </dl>
           <button type="button" className="icon-button" onClick={startEditing}>
             <EditIcon />

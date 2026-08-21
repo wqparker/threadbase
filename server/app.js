@@ -29,7 +29,7 @@ app.use('/api/laundry', laundryRouter);
 // Express 5 forwards rejected promises from async route handlers here
 // automatically, so route handlers don't need their own try/catch.
 app.use((err, req, res, next) => {
-  if (err.name === 'ValidationError' || err.name === 'CastError') {
+  if (err.name === 'ValidationError' || err.name === 'CastError' || err.name === 'MulterError') {
     return res.status(400).json({ error: err.message });
   }
   console.error(err);

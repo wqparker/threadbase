@@ -118,16 +118,19 @@
    (white bg -> black, black lines -> white) then screen-blend against the
    card background: screen makes the now-black background pixels resolve
    to exactly the card's colour (invisible), while the now-white line
-   pixels stay white and visible. Same media-query/attribute dual pattern
-   as the [data-theme] tokens in index.css. */
+   pixels stay white and visible. Scoped to .item-icon-fallback rather
+   than every .item-card/.item-detail-image img - a real uploaded photo
+   doesn't have this white-background problem and shouldn't be inverted.
+   Same media-query/attribute dual pattern as the [data-theme] tokens in
+   index.css. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .item-card img {
+  :root:not([data-theme='light']) .item-icon-fallback {
     filter: invert(1);
     mix-blend-mode: screen;
   }
 }
 
-:root[data-theme='dark'] .item-card img {
+:root[data-theme='dark'] .item-icon-fallback {
   filter: invert(1);
   mix-blend-mode: screen;
 }

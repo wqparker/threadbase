@@ -6,15 +6,36 @@
 // caller owns `values` (see ItemDetailScreen/ItemList for the shape) and
 // builds its own submit payload from them (create vs. edit convert empty
 // optional fields to undefined vs. null respectively).
+import { useEffect, useState } from 'react';
 import { ITEM_TYPES, COLOUR_CATEGORIES, WEAR_STATUSES, WASH_TEMPS, DRY_METHODS } from '../constants';
+import { getItemIcon } from '../utils/itemDisplay';
 
 function ItemFieldsForm({ values, onChange, onSubmit, onCancel, submitLabel, closets }) {
   function handleChange(field, value) {
     onChange({ ...values, [field]: value });
   }
 
+  // Live preview: a freshly-picked file takes priority over the existing
+  // saved photoUrl, which itself falls back to the type icon. Object URLs
+  // must be revoked when the file changes or this form unmounts.
+  const [previewUrl, setPreviewUrl] = useState(null);
+  useEffect(() => {
+    if (!values.photoFile) {
+      setPreviewUrl(null);
+      return undefined;
+    }
+    const url = URL.createObjectURL(values.photoFile);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [values.photoFile]);
+
   return (
     <form onSubmit={onSubmit}>
+      <img
+        className={`item-detail-image${previewUrl || values.photoUrl ? '' : ' item-icon-fallback'}`}
+        src={previewUrl || values.photoUrl || getItemIcon(values.type)}
+        alt="Item preview"
+      />
       <input
         className="detail-title-input"
         type="text"
@@ -156,14 +177,22 @@ function ItemFieldsForm({ values, onChange, onSubmit, onCancel, submitLabel, clo
             onChange={(e) => handleChange('delicate', e.target.checked)}
           />
         </dd>
-        <dt>Photo URL</dt>
+        <dt>Photo</dt>
         <dd>
           <input
-            type="text"
-            placeholder="Photo URL (optional)"
-            value={values.photoUrl}
-            onChange={(e) => handleChange('photoUrl', e.target.value)}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={(e) => handleChange('photoFile', e.target.files[0] || null)}
           />
+          {(values.photoFile || values.photoUrl) && (
+            <button
+              type="button"
+              onClick={() => onChange({ ...values, photoFile: null, photoUrl: '' })}
+            >
+              Remove photo
+            </button>
+          )}
         </dd>
       </dl>
       <button type="submit">{submitLabel}</button>

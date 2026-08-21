@@ -99,7 +99,8 @@ describe('App navigation', () => {
 
     expect(itemService.updateItem).toHaveBeenCalledWith(
       'item1',
-      expect.objectContaining({ brand: 'Acme' })
+      expect.objectContaining({ brand: 'Acme' }),
+      null
     );
     expect(await screen.findByText('Acme')).toBeInTheDocument();
   });
