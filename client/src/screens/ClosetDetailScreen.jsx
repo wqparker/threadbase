@@ -14,7 +14,7 @@ import ClosetForm from '../components/ClosetForm';
 import EditIcon from '../components/icons/EditIcon';
 import DeleteIcon from '../components/icons/DeleteIcon';
 
-function ClosetDetailScreen({ onNavigateToItemDetail, onBack }) {
+function ClosetDetailScreen({ onNavigateToItemDetail, onNavigateToItemCreate, onBack }) {
   const { activeCloset, setActiveCloset } = useActiveCloset();
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState(null);
@@ -73,7 +73,11 @@ function ClosetDetailScreen({ onNavigateToItemDetail, onBack }) {
         </>
       )}
 
-      <ItemList closetId={activeCloset._id} onNavigateToItemDetail={onNavigateToItemDetail} />
+      <ItemList
+        closetId={activeCloset._id}
+        onNavigateToItemDetail={onNavigateToItemDetail}
+        onNavigateToItemCreate={onNavigateToItemCreate}
+      />
     </section>
   );
 }

@@ -112,10 +112,6 @@
   gap: 32px 24px;
 }
 
-.item-grid-full-row {
-  grid-column: 1 / -1;
-}
-
 /* The clothing icon PNGs (e.g. s-shirt.png) turn out not to actually be
    transparent - they're black line art on an opaque white background, so
    in dark mode they show as a jarring white box on the dark card. Invert
