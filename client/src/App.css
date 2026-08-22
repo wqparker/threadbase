@@ -153,6 +153,12 @@
   height: 80%;
 }
 
+.item-card > img.item-icon-fallback {
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+}
+
 .item-card > svg {
   width: 65%;
   height: 65%;

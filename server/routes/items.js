@@ -10,7 +10,17 @@ const router = express.Router();
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 8 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => cb(null, file.mimetype.startsWith('image/')),
+  // Reject with an error rather than cb(null, false): silently dropping
+  // the file left the client thinking a non-image upload had succeeded,
+  // with no photo and no error to explain why.
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith('image/')) {
+      const err = new multer.MulterError('LIMIT_UNEXPECTED_FILE', 'photo');
+      err.message = 'Only image files are allowed';
+      return cb(err);
+    }
+    cb(null, true);
+  },
 });
 
 // Multipart requests (a photo file is involved) wrap the real payload as
@@ -32,11 +42,25 @@ async function processPhotoInBackground(itemId, originalBuffer, originalMimetype
   try {
     const processedBuffer = await removeBackground(originalBuffer, originalMimetype);
     const processedUrl = await uploadPhoto(processedBuffer, 'image/png');
-    await Item.findByIdAndUpdate(itemId, { photoUrl: processedUrl, photoProcessing: false });
+    // Compare-and-swap on photoUrl: only apply the swap if the item's photo
+    // is still the one this job started from. If the user removed or
+    // replaced it while this ~40s job was running, applying it now would
+    // resurrect a stale photo (and delete the wrong R2 object below) -
+    // discard the now-stale cutout instead.
+    const updated = await Item.findOneAndUpdate(
+      { _id: itemId, photoUrl: originalPhotoUrl },
+      { photoUrl: processedUrl, photoProcessing: false }
+    );
+    if (!updated) {
+      await deletePhotoIfOwned(processedUrl);
+      return;
+    }
     await deletePhotoIfOwned(originalPhotoUrl);
   } catch (err) {
     console.error('Background removal failed, keeping original photo:', err.message);
-    await Item.findByIdAndUpdate(itemId, { photoProcessing: false }).catch(() => {});
+    await Item.findOneAndUpdate({ _id: itemId, photoUrl: originalPhotoUrl }, { photoProcessing: false }).catch(
+      () => {}
+    );
   }
 }
 
@@ -59,7 +83,15 @@ router.post('/', upload.single('photo'), async (req, res) => {
     data.photoUrl = await uploadPhoto(req.file.buffer, req.file.mimetype);
     data.photoProcessing = true;
   }
-  const item = await Item.create(data);
+  let item;
+  try {
+    item = await Item.create(data);
+  } catch (err) {
+    // The photo already landed in R2 before we knew creation would fail -
+    // clean it up rather than leaving an orphaned object nothing refers to.
+    if (req.file) await deletePhotoIfOwned(data.photoUrl);
+    throw err;
+  }
   res.status(201).json(item);
   if (req.file) {
     processPhotoInBackground(item._id, req.file.buffer, req.file.mimetype, item.photoUrl);
@@ -76,15 +108,19 @@ router.put('/:id', upload.single('photo'), async (req, res) => {
     data.photoProcessing = true;
   }
 
-  if ('photoUrl' in data && existing.photoUrl && existing.photoUrl !== data.photoUrl) {
-    await deletePhotoIfOwned(existing.photoUrl);
-  }
-
   const item = await Item.findByIdAndUpdate(req.params.id, data, {
     returnDocument: 'after',
     runValidators: true,
   });
   if (!item) return res.status(404).json({ error: 'Item not found' });
+
+  // Only delete the old photo once the update has actually committed -
+  // otherwise a validation failure elsewhere in the payload would leave
+  // the item pointing at a photo that's already gone from R2.
+  if ('photoUrl' in data && existing.photoUrl && existing.photoUrl !== data.photoUrl) {
+    await deletePhotoIfOwned(existing.photoUrl);
+  }
+
   res.json(item);
   if (req.file) {
     processPhotoInBackground(item._id, req.file.buffer, req.file.mimetype, item.photoUrl);

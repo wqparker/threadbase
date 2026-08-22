@@ -129,6 +129,50 @@ describe('item photo upload/cleanup', () => {
     expect(deletePhotoIfOwned).toHaveBeenCalledWith('https://example.com/items/original.jpg');
   });
 
+  test('processPhotoInBackground discards the processed cutout if the photo changed while it was running', async () => {
+    const item = await Item.create({
+      type: 'other',
+      colourCategory: 'mixed',
+      photoUrl: 'https://example.com/items/original.jpg',
+      photoProcessing: true,
+    });
+    itemIds.push(item._id.toString());
+
+    // Simulate a second upload landing (e.g. the user replaced the photo)
+    // while the first job's background removal is still in flight.
+    await Item.findByIdAndUpdate(item._id, {
+      photoUrl: 'https://example.com/items/replaced.jpg',
+      photoProcessing: true,
+    });
+
+    removeBackground.mockResolvedValue(Buffer.from('processed-bytes'));
+    uploadPhoto.mockResolvedValue('https://example.com/items/processed.jpg');
+
+    await itemsRouter.processPhotoInBackground(
+      item._id,
+      Buffer.from('original-bytes'),
+      'image/jpeg',
+      'https://example.com/items/original.jpg'
+    );
+
+    const updated = await Item.findById(item._id);
+    expect(updated.photoUrl).toBe('https://example.com/items/replaced.jpg');
+    expect(deletePhotoIfOwned).toHaveBeenCalledWith('https://example.com/items/processed.jpg');
+    expect(deletePhotoIfOwned).not.toHaveBeenCalledWith('https://example.com/items/original.jpg');
+  });
+
+  test('POST /api/items cleans up the uploaded photo if item creation fails validation', async () => {
+    uploadPhoto.mockResolvedValue('https://example.com/items/orphaned.jpg');
+
+    const res = await request(app)
+      .post('/api/items')
+      .field('data', JSON.stringify({ colourCategory: 'mixed' })) // missing required `type`
+      .attach('photo', Buffer.from('fake-image-data'), 'test.jpg');
+
+    expect(res.status).toBe(400);
+    expect(deletePhotoIfOwned).toHaveBeenCalledWith('https://example.com/items/orphaned.jpg');
+  });
+
   test('processPhotoInBackground falls back to the original photo if removal fails', async () => {
     const item = await Item.create({
       type: 'other',

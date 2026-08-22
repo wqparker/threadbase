@@ -23,9 +23,15 @@ describe('laundry routes', () => {
   let itemIds;
   let loadIds;
 
-  beforeEach(() => {
+  // /api/laundry/generate groups every currently-dirty item with no
+  // scoping - these tests assert exact counts/contents, so leftover items
+  // from manual testing or an earlier interrupted run (threadbase-test is
+  // shared for both, per CLAUDE.md) would otherwise cause false failures.
+  beforeEach(async () => {
     itemIds = [];
     loadIds = [];
+    await Item.deleteMany({});
+    await LaundryLoad.deleteMany({});
   });
 
   afterEach(async () => {
