@@ -13,6 +13,7 @@ import { useActiveItem } from '../hooks/useActiveItem';
 import { useClosets } from '../hooks/useClosets';
 import { getItem, updateItem, deleteItem } from '../services/itemService';
 import { getItemDisplayName, getItemIcon } from '../utils/itemDisplay';
+import { getPhotoTransform } from '../utils/photoFrame';
 import ItemFieldsForm from '../components/ItemFieldsForm';
 import BackIcon from '../components/icons/BackIcon';
 import EditIcon from '../components/icons/EditIcon';
@@ -58,6 +59,9 @@ function ItemDetailScreen({ onBack }) {
       colour: activeItem.colour || '',
       photoUrl: activeItem.photoUrl || '',
       photoFile: null,
+      photoScale: activeItem.photoScale ?? 1,
+      photoOffsetX: activeItem.photoOffsetX ?? 0,
+      photoOffsetY: activeItem.photoOffsetY ?? 0,
       wearStatus: activeItem.wearStatus || 'clean',
       wearCount: String(activeItem.wearCount ?? 0),
       lastWorn: toDateInputValue(activeItem.lastWorn),
@@ -87,6 +91,9 @@ function ItemDetailScreen({ onBack }) {
         closetId: editValues.closetId || null,
         colour: editValues.colour,
         photoUrl: editValues.photoUrl,
+        photoScale: editValues.photoScale,
+        photoOffsetX: editValues.photoOffsetX,
+        photoOffsetY: editValues.photoOffsetY,
         wearStatus: editValues.wearStatus,
         wearCount: Number(editValues.wearCount),
         lastWorn: editValues.lastWorn || null,
@@ -134,11 +141,13 @@ function ItemDetailScreen({ onBack }) {
         />
       ) : (
         <>
-          <img
-            className={`item-detail-image${activeItem.photoUrl ? '' : ' item-icon-fallback'}`}
-            src={activeItem.photoUrl || getItemIcon(activeItem.type)}
-            alt={displayName}
-          />
+          {activeItem.photoUrl ? (
+            <div className="photo-frame item-detail-image">
+              <img src={activeItem.photoUrl} alt={displayName} style={getPhotoTransform(activeItem)} />
+            </div>
+          ) : (
+            <img className="item-detail-image item-icon-fallback" src={getItemIcon(activeItem.type)} alt={displayName} />
+          )}
           {activeItem.photoProcessing && <p>Processing photo...</p>}
           <h1>{displayName}</h1>
           <dl className="field-list">

@@ -4,6 +4,7 @@
 // card.
 import Card from './Card';
 import { getItemDisplayName, getItemIcon } from '../utils/itemDisplay';
+import { getPhotoTransform } from '../utils/photoFrame';
 
 function ItemCard({ item, onClick }) {
   const displayName = getItemDisplayName(item);
@@ -16,11 +17,13 @@ function ItemCard({ item, onClick }) {
         aria-label={`Wear status: ${wearStatus}`}
         title={wearStatus}
       />
-      <img
-        className={item.photoUrl ? undefined : 'item-icon-fallback'}
-        src={item.photoUrl || getItemIcon(item.type)}
-        alt={displayName}
-      />
+      {item.photoUrl ? (
+        <div className="photo-frame">
+          <img src={item.photoUrl} alt={displayName} style={getPhotoTransform(item)} />
+        </div>
+      ) : (
+        <img className="item-icon-fallback" src={getItemIcon(item.type)} alt={displayName} />
+      )}
       <p>{displayName}</p>
     </Card>
   );

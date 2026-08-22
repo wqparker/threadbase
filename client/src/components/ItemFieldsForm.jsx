@@ -9,10 +9,15 @@
 import { useEffect, useState } from 'react';
 import { ITEM_TYPES, COLOUR_CATEGORIES, WEAR_STATUSES, WASH_TEMPS, DRY_METHODS } from '../constants';
 import { getItemIcon } from '../utils/itemDisplay';
+import PhotoPositioner from './PhotoPositioner';
 
 function ItemFieldsForm({ values, onChange, onSubmit, onCancel, submitLabel, closets }) {
   function handleChange(field, value) {
     onChange({ ...values, [field]: value });
+  }
+
+  function handlePositionChange(position) {
+    onChange({ ...values, ...position });
   }
 
   // Live preview: a freshly-picked file takes priority over the existing
@@ -29,13 +34,23 @@ function ItemFieldsForm({ values, onChange, onSubmit, onCancel, submitLabel, clo
     return () => URL.revokeObjectURL(url);
   }, [values.photoFile]);
 
+  const hasPhoto = Boolean(previewUrl || values.photoUrl);
+
   return (
     <form onSubmit={onSubmit}>
-      <img
-        className={`item-detail-image${previewUrl || values.photoUrl ? '' : ' item-icon-fallback'}`}
-        src={previewUrl || values.photoUrl || getItemIcon(values.type)}
-        alt="Item preview"
-      />
+      {hasPhoto ? (
+        <PhotoPositioner
+          src={previewUrl || values.photoUrl}
+          alt="Item preview"
+          photoScale={values.photoScale ?? 1}
+          photoOffsetX={values.photoOffsetX ?? 0}
+          photoOffsetY={values.photoOffsetY ?? 0}
+          onChange={handlePositionChange}
+          frameClassName="item-detail-image"
+        />
+      ) : (
+        <img className="item-detail-image item-icon-fallback" src={getItemIcon(values.type)} alt="Item preview" />
+      )}
       <input
         className="detail-title-input"
         type="text"

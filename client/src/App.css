@@ -148,15 +148,55 @@
   border-radius: 16px;
 }
 
-.item-card img {
-  max-width: 65%;
-  max-height: 65%;
-  object-fit: contain;
+.item-card .photo-frame {
+  width: 80%;
+  height: 80%;
 }
 
 .item-card > svg {
   width: 65%;
   height: 65%;
+}
+
+/* Clips a freely panned/zoomed photo to its display box. The img inside
+   is centered and sized to fit at scale 1/offset 0 (matching the old
+   plain object-fit: contain look), then photoScale/photoOffsetX/
+   photoOffsetY (see Item schema) shift and zoom it from there. Percentage
+   translate is relative to the img's own rendered size, so the same
+   offset/scale values look the same whether the frame is a small card
+   thumbnail or the large detail view. */
+.photo-frame {
+  position: relative;
+  overflow: hidden;
+}
+
+.photo-frame img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.photo-frame--editable {
+  border: 2px dashed var(--accent);
+  border-radius: 8px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.photo-frame--editable:active {
+  cursor: grabbing;
+}
+
+.photo-zoom {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 8px auto 16px;
 }
 
 .wear-status-badge {
@@ -233,6 +273,12 @@ button.item-card:focus-visible {
   width: 100%;
   display: block;
   margin: 0 auto 16px;
+}
+
+/* Only the real-photo case (wrapped in .photo-frame) gets forced square -
+   the icon-fallback <img> keeps its natural aspect ratio, as before. */
+.photo-frame.item-detail-image {
+  aspect-ratio: 1 / 1;
 }
 
 .field-list {

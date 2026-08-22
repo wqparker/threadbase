@@ -45,6 +45,21 @@ const itemSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  // User-adjustable pan/zoom applied on top of the photo wherever it's
+  // displayed (card + detail) - lets a cutout be reframed within its
+  // square display frame instead of always sitting centered/contained.
+  photoScale: {
+    type: Number,
+    default: 1,
+  },
+  photoOffsetX: {
+    type: Number,
+    default: 0,
+  },
+  photoOffsetY: {
+    type: Number,
+    default: 0,
+  },
   careInstructions: {
     type: careInstructionsSchema,
     default: () => ({}),
