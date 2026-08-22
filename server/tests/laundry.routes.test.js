@@ -1,6 +1,9 @@
 // server/tests/laundry.routes.test.js
 // Route-level tests via supertest against the exported app (no real port
-// bound). Runs against threadbase-test, same as the other route tests.
+// bound). Runs against threadbase-test, same as the other route tests -
+// which, per CLAUDE.md, doubles as the live dev server's database, so
+// these tests must never assume the collection is otherwise empty (or
+// wipe it) - only assert on the specific items/loads each test creates.
 
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
@@ -23,15 +26,9 @@ describe('laundry routes', () => {
   let itemIds;
   let loadIds;
 
-  // /api/laundry/generate groups every currently-dirty item with no
-  // scoping - these tests assert exact counts/contents, so leftover items
-  // from manual testing or an earlier interrupted run (threadbase-test is
-  // shared for both, per CLAUDE.md) would otherwise cause false failures.
-  beforeEach(async () => {
+  beforeEach(() => {
     itemIds = [];
     loadIds = [];
-    await Item.deleteMany({});
-    await LaundryLoad.deleteMany({});
   });
 
   afterEach(async () => {
@@ -60,13 +57,17 @@ describe('laundry routes', () => {
     loadIds.push(...res.body.map((load) => load._id));
 
     expect(res.status).toBe(201);
-    expect(res.body).toHaveLength(1);
-    expect(res.body[0].criteria).toBe('cold wash, dark, non-delicate');
-    expect(res.body[0].items.map((item) => item._id)).toEqual(
+    // /api/laundry/generate groups every dirty item in the whole DB, not
+    // just this test's - find the load our items actually landed in
+    // rather than assuming the response contains only our data.
+    const ourLoad = res.body.find((load) => load.items.some((item) => item._id === itemA._id.toString()));
+    expect(ourLoad).toBeDefined();
+    expect(ourLoad.criteria).toBe('cold wash, dark, non-delicate');
+    expect(ourLoad.items.map((item) => item._id)).toEqual(
       expect.arrayContaining([itemA._id.toString(), itemB._id.toString()])
     );
 
-    const persisted = await LaundryLoad.findById(res.body[0]._id);
+    const persisted = await LaundryLoad.findById(ourLoad._id);
     expect(persisted.items.map((id) => id.toString())).toEqual(
       expect.arrayContaining([itemA._id.toString(), itemB._id.toString()])
     );
@@ -85,14 +86,15 @@ describe('laundry routes', () => {
     loadIds.push(...res.body.map((load) => load._id));
 
     expect(res.status).toBe(201);
-    expect(res.body).toEqual([]);
+    const returnedItemIds = res.body.flatMap((load) => load.items.map((item) => item._id));
+    expect(returnedItemIds).not.toContain(cleanItem._id.toString());
   });
 
-  test('POST /api/laundry/generate returns an empty array when nothing is dirty', async () => {
+  test('POST /api/laundry/generate runs cleanly when this test contributes no dirty items', async () => {
     const res = await request(app).post('/api/laundry/generate');
     loadIds.push(...res.body.map((load) => load._id));
 
     expect(res.status).toBe(201);
-    expect(res.body).toEqual([]);
+    expect(Array.isArray(res.body)).toBe(true);
   });
 });
